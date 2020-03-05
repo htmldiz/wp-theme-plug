@@ -10,6 +10,10 @@
  * @version 1.4
  * @license http://www.opensource.org/licenses/mit-license.html MIT License
  */
+if ( !function_exists( 'add_action' ) ) {
+    echo 'Hi there!  I\'m just a plugin, not much I can do when called directly.';
+    exit;
+}
 class CPT {
 
     /**

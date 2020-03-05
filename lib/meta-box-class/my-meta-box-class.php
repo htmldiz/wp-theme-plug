@@ -28,7 +28,10 @@
  *
  * @package MY Meta Box Class
  */
-
+if ( !function_exists( 'add_action' ) ) {
+  echo 'Hi there!  I\'m just a plugin, not much I can do when called directly.';
+  exit;
+}
 if ( ! class_exists( 'AT_Meta_Box') ) :
 
 /**
