@@ -1065,6 +1065,7 @@ class AT_Meta_Box {
     $display = true;
     if( isset($this->_meta_box['page_template']) && !empty($this->_meta_box['page_template'])){
       if(!is_array($this->_meta_box['page_template'])){
+          $this->_meta_box['page_template'] = str_replace('.php','',$this->_meta_box['page_template']);
         $this->_meta_box['page_template'] = array($this->_meta_box['page_template'].'.php');
       }
        $display = false;
