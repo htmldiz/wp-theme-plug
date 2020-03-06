@@ -330,12 +330,24 @@ class AT_Meta_Box {
     $post_id = $post->ID;
     if( isset($this->_meta_box['page_template']) && !empty($this->_meta_box['page_template'])){
       if(!is_array($this->_meta_box['page_template'])){
+        $this->_meta_box['page_template'] = str_replace('.php','',$this->_meta_box['page_template']);
         $this->_meta_box['page_template'] = array($this->_meta_box['page_template'].'.php');
       }
        $display = false;
       if(is_array($this->_meta_box['page_template'])){
         if(in_array(get_page_template_slug($post_id),$this->_meta_box['page_template'])){
           $display = true;
+        }
+        if($display == false){
+            $page_on_front = get_option('page_on_front',0);
+            if(!empty($page_on_front)){
+                if(in_array('front-page.php',$this->_meta_box['page_template'])){
+                    $page_on_front = get_option('page_on_front',0);
+                    if($post_id == $page_on_front){
+                        $display = true;
+                    }
+                }
+            }
         }
       }
     }
@@ -365,6 +377,17 @@ class AT_Meta_Box {
           $display = true;
         }
       }
+        if($display == false){
+            $page_on_front = get_option('page_on_front',0);
+            if(!empty($page_on_front)){
+                if(in_array('front-page.php',$this->_meta_box['page_template'])){
+                    $page_on_front = get_option('page_on_front',0);
+                    if($post_id == $page_on_front){
+                        $display = true;
+                    }
+                }
+            }
+        }
     }
     if($display){
       wp_nonce_field( basename(__FILE__), 'at_meta_box_nonce' );
@@ -1048,6 +1071,17 @@ class AT_Meta_Box {
       if(in_array(get_page_template_slug($post_id),$this->_meta_box['page_template'])){
         $display = true;
       }
+        if($display == false){
+            $page_on_front = get_option('page_on_front',0);
+            if(!empty($page_on_front)){
+                if(in_array('front-page.php',$this->_meta_box['page_template'])){
+                    $page_on_front = get_option('page_on_front',0);
+                    if($post_id == $page_on_front){
+                        $display = true;
+                    }
+                }
+            }
+        }
     }
     if($display){
       $post_type_object = get_post_type_object( $post_type );
