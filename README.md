@@ -101,7 +101,12 @@ The Class uses the WordPress defaults where possible.
 To override the default options simply pass an array of options as the second parameter. Not all options have to be passed just the ones you want to add/override like so:
 
 ```php
-$books = new CPT('book', array(
+$person = new CPT(array(
+    'post_type_name' => 'person',
+    'singular' => 'Person',
+    'plural' => 'People',
+    'slug' => 'people'
+), array(
 	'supports' => array('title', 'editor', 'thumbnail', 'comments')
 ));
 ```
