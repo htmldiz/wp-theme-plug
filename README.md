@@ -3,11 +3,12 @@ My Wordpress Meta box Class
 Contributors: bainternet
 Requires at least: 3.1
 Tested up to: 3.7.1
-/*
-* configure your meta box
-*/
-# How I add a WordPress MetaBox
+
+# How add a WordPress MetaBox
 ```php
+/*
+* configure meta box
+*/
 $config = array(
     'id' => 'demo_meta_box',             // meta box id, unique per meta box
     'title' => 'Demo Meta Box',      // meta box title
