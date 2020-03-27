@@ -116,4 +116,5 @@ $person->register_taxonomy(array(
 	'plural' => 'Genres',
 	'slug' => 'genre'
 ));
+$person->menu_icon("dashicons-book-alt");
 ```
