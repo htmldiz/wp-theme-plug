@@ -110,4 +110,10 @@ $person = new CPT(array(
 ), array(
 	'supports' => array('title', 'editor', 'thumbnail', 'comments')
 ));
+$person->register_taxonomy(array(
+	'taxonomy_name' => 'genre',
+	'singular' => 'Genre',
+	'plural' => 'Genres',
+	'slug' => 'genre'
+));
 ```
