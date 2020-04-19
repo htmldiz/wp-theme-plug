@@ -973,8 +973,7 @@ class AT_Meta_Box {
     if (!is_array($meta)) $meta = (array) $meta;
     $this->show_field_begin($field, $meta);
     $options = $field['options'];
-    // var_dump($options['taxonomy']);
-    
+
     // checkbox_list
     if ('checkbox_list' == $options['type']) {
     $terms = get_terms($options['taxonomy'], $options['args']);
@@ -992,6 +991,9 @@ class AT_Meta_Box {
       }
       echo "<select ".( isset($field['style'])? "style='{$field['style']}' " : '' )." class='at-tax-select".( isset($field['class'])? ' ' . $field['class'] : '' )."' name='{$field['id']}" . ($field['multiple'] ? "[]' multiple='multiple' style='height:auto'" : "'") . ">";
       if($display_terms == false){
+          if(isset($options['std'])){
+              echo "<option value=''>".$options['std']."</option>";
+          }
         foreach ($terms as $term) {
           echo "<option value='$term->slug'" . selected(in_array($term->slug, $meta), true, false) . ">$term->name</option>";
         }
