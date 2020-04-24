@@ -569,7 +569,7 @@ class AT_Meta_Box {
    * @access public
    */
   public function show_field_begin( $field, $meta) {
-    echo "<div class='at-field'".(($this->inGroup === true)? " valign='top'": "").">";
+    echo "<div class='at-field ".( isset($field['class']) ? $field['class'] : '' )."'".(($this->inGroup === true)? " valign='top'": "").">";
     if ( $field['name'] != '' || $field['name'] != FALSE ) {
       echo "<div class='at-label'>";
         echo "<label for='{$field['id']}'>{$field['name']}</label>";

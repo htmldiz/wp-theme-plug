@@ -120,3 +120,11 @@ $person->register_taxonomy(array(
 ));
 $person->menu_icon("dashicons-book-alt");
 ```
+
+# How add a Gallery
+
+```php
+new Gallery_meta_theme_pl(array(
+    'post'
+)); // add Gallery to all posts post_type "post"
+```

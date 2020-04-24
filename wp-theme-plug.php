@@ -13,6 +13,7 @@ if ( !function_exists( 'add_action' ) ) {
 }
 require_once("lib/meta-box-class/my-meta-box-class.php");
 require_once("lib/CPT.php");
+require_once("lib/gallery/gallery.php");
 class ThemeSettingsCL
 {
 	
