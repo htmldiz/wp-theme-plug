@@ -15,6 +15,7 @@ $config = array(
     'pages' => array('post', 'page'),    // post types, accept custom post types as well, default is array('post'); optional
     'context' => 'normal',               // where the meta box appear: normal (default), advanced, side; optional
     'priority' => 'high',                // order of meta box: high (default), low; optional
+    'page_template' => array('front-page.php'), // use page template for example front-page.php
     'fields' => array(),                 // list of meta fields (can be added by field arrays) or using the class's functions
     'local_images' => false,             // Use local or hosted images (meta box images for add/remove)
     'use_with_theme' => false            //change path if used with theme set to true, false for a plugin or anything else for a custom path(default false).
