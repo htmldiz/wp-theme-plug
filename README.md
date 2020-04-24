@@ -25,6 +25,7 @@ $config = array(
     'pages' => array('post', 'page'),
     'context' => 'normal',
     'priority' => 'high',
+    'page_template' => array('front-page.php')
     'fields' => array(),
     'local_images' => false,
     'use_with_theme' => false
