@@ -342,7 +342,6 @@ class AT_Meta_Box {
             $page_on_front = get_option('page_on_front',0);
             if(!empty($page_on_front)){
                 if(in_array('front-page.php',$this->_meta_box['page_template'])){
-                    $page_on_front = get_option('page_on_front',0);
                     if($post_id == $page_on_front){
                         $display = true;
                     }

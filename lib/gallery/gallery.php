@@ -5,12 +5,30 @@
  class Gallery_meta_theme_pl
  {
 	private $types;
-	function __construct( $types )
+	private $page_template;
+	function __construct( $props )
 	{
-		if(!$types){
+		if(!$props){
 			return;
 		}
-		$this->types = $types;
+		$defaultprops = array(
+			'post_types'    => array(),
+			'page_template' => array()
+		);
+		$props = array_merge($defaultprops,$props);
+		if(!is_array($props['post_types'])){
+			$props['post_types'] = array($props['post_types']);
+		}
+		if(!is_array($props['page_template'])){
+			$props['page_template'] = array($props['page_template']);
+			foreach ($props['page_template'] as $key => $page_templatename) {
+				$page_template = str_replace('.php','',$page_templatename);
+				$page_template = $page_template.'.php';
+				$props['page_template'][$key] = $page_template;
+			}
+		}
+		$this->types         = $props['post_types'];
+		$this->page_template = $props['page_template'];
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
 		add_action( 'add_meta_boxes'       , array( $this, 'add_meta_boxes' ) );
 		add_action( 'save_post'            , array( $this, 'save_post' ) );
@@ -21,21 +39,39 @@
 			wp_enqueue_style('gallery-metabox', plugins_url('/css/gallery-metabox.css',__FILE__));
 		}
 	}
-	function add_meta_boxes($post_type) {
+	function add_meta_boxes($post_type,$post) {
 		$type_default = array();
 		if(is_array($this->types) && !empty($this->types)){
 			$type_default = array_merge( $this->types, $type_default );
 		}
 		if (empty($type_default)) {
 			if (in_array($post_type, $type_default)) {
-				add_meta_box(
-					'gallery-metabox',
-					'Gallery',
-					array($this,'gallery_meta_callback'),
-					$post_type,
-					'normal',
-					'high'
-				);
+				$display_metabox = false;
+				$post_id = $post->ID;
+				if(!empty($page_template)){
+					if(in_array(get_page_template_slug($post_id),$page_template)){
+						$display_metabox = true;
+					}else{
+						$page_on_front = get_option('page_on_front',0);
+						if(in_array('front-page.php',$page_template)){
+							if($page_on_front == $post_id){
+								$display_metabox = true;
+							}
+						}
+					}
+				}else{
+					$display_metabox = true;
+				}
+				if($display_metabox == false){
+					add_meta_box(
+						'gallery-metabox',
+						'Gallery',
+						array($this,'gallery_meta_callback'),
+						$post_type,
+						'normal',
+						'high'
+					);
+				}
 			}
 		}
 	}

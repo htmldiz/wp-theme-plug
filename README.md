@@ -125,6 +125,7 @@ $person->menu_icon("dashicons-book-alt");
 
 ```php
 new Gallery_meta_theme_pl(array(
-    'post'
+    'post_types'    => array('post'),
+    'page_template' => array('front-page.php')
 )); // add Gallery to all posts post_type "post"
 ```
