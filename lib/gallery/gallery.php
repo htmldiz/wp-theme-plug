@@ -30,7 +30,7 @@
 		$this->types         = $props['post_types'];
 		$this->page_template = $props['page_template'];
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
-		add_action( 'add_meta_boxes'       , array( $this, 'add_meta_boxes' ) );
+		add_action( 'add_meta_boxes'       , array( $this, 'add_meta_boxes' ), 10, 2 );
 		add_action( 'save_post'            , array( $this, 'save_post' ) );
 	}
 	function admin_enqueue_scripts($hook) {
@@ -44,25 +44,24 @@
 		if(is_array($this->types) && !empty($this->types)){
 			$type_default = array_merge( $this->types, $type_default );
 		}
-		if (empty($type_default)) {
+		if (!empty($type_default)) {
 			if (in_array($post_type, $type_default)) {
 				$display_metabox = false;
 				$post_id = $post->ID;
-				if(!empty($page_template)){
-					if(in_array(get_page_template_slug($post_id),$page_template)){
+				if(!empty($this->page_template)){
+					if(in_array(get_page_template_slug($post_id),$this->page_template)){
 						$display_metabox = true;
-					}else{
-						$page_on_front = get_option('page_on_front',0);
-						if(in_array('front-page.php',$page_template)){
-							if($page_on_front == $post_id){
-								$display_metabox = true;
-							}
+					}
+					$page_on_front = get_option('page_on_front',0);
+					if(in_array('front-page.php',$this->page_template)){
+						if((int)$page_on_front == (int)$post_id){
+							$display_metabox = true;
 						}
 					}
 				}else{
 					$display_metabox = true;
 				}
-				if($display_metabox == false){
+				if($display_metabox == true){
 					add_meta_box(
 						'gallery-metabox',
 						'Gallery',
