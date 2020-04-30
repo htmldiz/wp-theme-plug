@@ -10,26 +10,26 @@ Tested up to: 3.7.1
 * configure meta box
 */
 $config = array(
-    'id' => 'demo_meta_box',             // meta box id, unique per meta box
-    'title' => 'Demo Meta Box',      // meta box title
-    'pages' => array('post', 'page'),    // post types, accept custom post types as well, default is array('post'); optional
-    'context' => 'normal',               // where the meta box appear: normal (default), advanced, side; optional
-    'priority' => 'high',                // order of meta box: high (default), low; optional
-    'page_template' => array('front-page.php'), // use page template for example front-page.php
-    'fields' => array(),                 // list of meta fields (can be added by field arrays) or using the class's functions
-    'local_images' => false,             // Use local or hosted images (meta box images for add/remove)
-    'use_with_theme' => false            //change path if used with theme set to true, false for a plugin or anything else for a custom path(default false).
+	'id' => 'demo_meta_box',             // meta box id, unique per meta box
+	'title' => 'Demo Meta Box',      // meta box title
+	'pages' => array('post', 'page'),    // post types, accept custom post types as well, default is array('post'); optional
+	'context' => 'normal',               // where the meta box appear: normal (default), advanced, side; optional
+	'priority' => 'high',                // order of meta box: high (default), low; optional
+	'page_template' => array('front-page.php'), // use page template for example front-page.php
+	'fields' => array(),                 // list of meta fields (can be added by field arrays) or using the class's functions
+	'local_images' => false,             // Use local or hosted images (meta box images for add/remove)
+	'use_with_theme' => false            //change path if used with theme set to true, false for a plugin or anything else for a custom path(default false).
 );
 $config = array(
-    'id' => 'demo_meta_box',
-    'title' => 'Demo Meta Box',
-    'pages' => array('post', 'page'),
-    'context' => 'normal',
-    'priority' => 'high',
-    'page_template' => array('front-page.php')
-    'fields' => array(),
-    'local_images' => false,
-    'use_with_theme' => false
+	'id' => 'demo_meta_box',
+	'title' => 'Demo Meta Box',
+	'pages' => array('post', 'page'),
+	'context' => 'normal',
+	'priority' => 'high',
+	'page_template' => array('front-page.php')
+	'fields' => array(),
+	'local_images' => false,
+	'use_with_theme' => false
 );
 /*
 * Initiate your meta box
@@ -105,10 +105,10 @@ To override the default options simply pass an array of options as the second pa
 
 ```php
 $person = new CPT(array(
-    'post_type_name' => 'person',
-    'singular' => 'Person',
-    'plural' => 'People',
-    'slug' => 'people'
+	'post_type_name' => 'person',
+	'singular' => 'Person',
+	'plural' => 'People',
+	'slug' => 'people'
 ), array(
 	'supports' => array('title', 'editor', 'thumbnail', 'comments')
 ));
@@ -125,7 +125,80 @@ $person->menu_icon("dashicons-book-alt");
 
 ```php
 new Gallery_meta_theme_pl(array(
-    'post_types'    => array('post'),
-    'page_template' => array('front-page.php')
+	'post_types'    => array('post'),
+	'page_template' => array('front-page.php')
 )); // add Gallery to all posts post_type "post"
+```
+
+
+# Tax Meta Class
+
+```php
+$config = array(
+	'id' => 'demo_meta_box',          // meta box id, unique per meta box
+	'title' => 'Demo Meta Box',          // meta box title
+	'pages' => array('category'),        // taxonomy name, accept categories, post_tag and custom taxonomies
+	'context' => 'normal',            // where the meta box appear: normal (default), advanced, side; optional
+	'fields' => array(),            // list of meta fields (can be added by field arrays)
+	'local_images' => false,          // Use local or hosted images (meta box images for add/remove)
+	'use_with_theme' => false          //change path if used with theme set to true, false for a plugin or anything else for a custom path(default false).
+);
+$config = array(
+	'id' => 'demo_meta_box',
+	'title' => 'Demo Meta Box',
+	'pages' => array('category'),
+	'context' => 'normal',
+	'fields' => array(),
+	'local_images' => false,
+	'use_with_theme' => false
+);
+$my_meta =  new Tax_Meta_Class($config);
+
+  //text field
+  $my_meta->addText($prefix.'text_field_id',array('name'=> __('My Text ','tax-meta'),'desc' => 'this is a field desription'));
+  //textarea field
+  $my_meta->addTextarea($prefix.'textarea_field_id',array('name'=> __('My Textarea ','tax-meta')));
+  //checkbox field
+  $my_meta->addCheckbox($prefix.'checkbox_field_id',array('name'=> __('My Checkbox ','tax-meta')));
+  //select field
+  $my_meta->addSelect($prefix.'select_field_id',array('selectkey1'=>'Select Value1','selectkey2'=>'Select Value2'),array('name'=> __('My select ','tax-meta'), 'std'=> array('selectkey2')));
+  //radio field
+  $my_meta->addRadio($prefix.'radio_field_id',array('radiokey1'=>'Radio Value1','radiokey2'=>'Radio Value2'),array('name'=> __('My Radio Filed','tax-meta'), 'std'=> array('radionkey2')));
+  //date field
+  $my_meta->addDate($prefix.'date_field_id',array('name'=> __('My Date ','tax-meta')));
+  //Time field
+  $my_meta->addTime($prefix.'time_field_id',array('name'=> __('My Time ','tax-meta')));
+  //Color field
+  $my_meta->addColor($prefix.'color_field_id',array('name'=> __('My Color ','tax-meta')));
+  //Image field
+  $my_meta->addImage($prefix.'image_field_id',array('name'=> __('My Image ','tax-meta')));
+  //file upload field
+  $my_meta->addFile($prefix.'file_field_id',array('name'=> __('My File ','tax-meta')));
+  //wysiwyg field
+  $my_meta->addWysiwyg($prefix.'wysiwyg_field_id',array('name'=> __('My wysiwyg Editor ','tax-meta')));
+  //taxonomy field
+  $my_meta->addTaxonomy($prefix.'taxonomy_field_id',array('taxonomy' => 'category'),array('name'=> __('My Taxonomy ','tax-meta')));
+  //posts field
+  $my_meta->addPosts($prefix.'posts_field_id',array('args' => array('post_type' => 'page')),array('name'=> __('My Posts ','tax-meta')));
+  
+  /*
+   * To Create a reapeater Block first create an array of fields
+   * use the same functions as above but add true as a last param
+   */
+  
+  $repeater_fields[] = $my_meta->addText($prefix.'re_text_field_id',array('name'=> __('My Text ','tax-meta')),true);
+  $repeater_fields[] = $my_meta->addTextarea($prefix.'re_textarea_field_id',array('name'=> __('My Textarea ','tax-meta')),true);
+  $repeater_fields[] = $my_meta->addCheckbox($prefix.'re_checkbox_field_id',array('name'=> __('My Checkbox ','tax-meta')),true);
+  $repeater_fields[] = $my_meta->addImage($prefix.'image_field_id',array('name'=> __('My Image ','tax-meta')),true);
+  
+  /*
+   * Then just add the fields to the repeater block
+   */
+  //repeater block
+  $my_meta->addRepeaterBlock($prefix.'re_',array('inline' => true, 'name' => __('This is a Repeater Block','tax-meta'),'fields' => $repeater_fields));
+  /*
+   * Don't Forget to Close up the meta box decleration
+   */
+  //Finish Meta Box Decleration
+  $my_meta->Finish();
 ```
