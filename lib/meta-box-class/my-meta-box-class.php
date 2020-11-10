@@ -539,13 +539,13 @@ class AT_Meta_Box {
     echo '<script>
         jQuery(document).ready(function() {
           var '.$counter.' = '.$c.';
-          jQuery("#add-'.$field['id'].'").live(\'click\', function() {
+          jQuery("body").on(\'click\',"#add-'.$field['id'].'" function() {
             '.$counter.' = '.$counter.' + 1;
             jQuery(this).before(\''.$js_code.'\');            
             update_repeater_fields();
             return false;
           });
-              jQuery("#remove-'.$field['id'].'").live(\'click\', function() {
+              jQuery("body").on(\'click\',"#remove-'.$field['id'].'", function() {
                   if (jQuery(this).parent().hasClass("re-control"))
                     jQuery(this).parent().parent().remove();
                   else

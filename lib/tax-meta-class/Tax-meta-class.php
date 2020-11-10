@@ -433,12 +433,12 @@ class Tax_Meta_Class {
     echo '<script>
         jQuery(document).ready(function() {
           var '.$counter.' = '.$c.';
-          jQuery("#add-'.$field['id'].'").live(\'click\', function() {
+          jQuery("body").on(\'click\',"#add-'.$field['id'].'", function() {
             '.$counter.' = '.$counter.' + 1;
             jQuery(this).before(\''.$js_code.'\');            
             update_repeater_fields();
           });
-              jQuery("#remove-'.$field['id'].'").live(\'click\', function() {
+              jQuery("body").on(\'click\',"#remove-'.$field['id'].'", function() {
                   jQuery(this).parent().remove();
               });
           });
@@ -857,14 +857,18 @@ class Tax_Meta_Class {
     // checkbox_list
     if ('checkbox_list' == $options['type']) {
       foreach ($terms as $term) {
-        echo "<input type='checkbox' name='{$field['id']}[]' value='$term->slug'" . checked(in_array($term->slug, $meta), true, false) . " /> $term->name<br/>";
+        echo "<input type='checkbox' name='{$field['id']}[]' value='$term->term_id'" . checked(in_array($term->term_id, $meta), true, false) . " /> $term->name<br/>";
       }
     }
     // select
     else {
+
       echo "<select name='{$field['id']}" . ($field['multiple'] ? "[]' multiple='multiple' style='height:auto'" : "'") . ">";
+        if($field['std']){
+        echo "<option value=''>".$field['std']."</option>";
+        }
       foreach ($terms as $term) {
-        echo "<option value='$term->slug'" . selected(in_array($term->slug, $meta), true, false) . ">$term->name</option>";
+        echo "<option value='$term->term_id'" . selected(in_array($term->term_id, $meta), true, false) . ">$term->name</option>";
       }
       echo "</select>";
     }

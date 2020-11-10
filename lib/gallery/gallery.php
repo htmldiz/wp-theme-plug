@@ -35,7 +35,13 @@
 	}
 	function admin_enqueue_scripts($hook) {
 		if ( 'post.php' == $hook || 'post-new.php' == $hook ) {
-			wp_enqueue_script('gallery-metabox', plugins_url('/js/gallery-metabox.js',__FILE__), array('jquery', 'jquery-ui-sortable'));
+            wp_register_script('gallery-metabox', plugins_url('/js/gallery-metabox.js',__FILE__), array('jquery', 'jquery-ui-sortable'));
+            $translation_array = array(
+                'edit_image' => __( 'Change image' ),
+                'remove_image' => __( 'Remove image' )
+            );
+            wp_localize_script( 'gallery-metabox', 'translationgallerymetabox', $translation_array );
+            wp_enqueue_script( 'gallery-metabox' );
 			wp_enqueue_style('gallery-metabox', plugins_url('/css/gallery-metabox.css',__FILE__));
 		}
 	}
@@ -64,7 +70,7 @@
 				if($display_metabox == true){
 					add_meta_box(
 						'gallery-metabox',
-						'Gallery',
+						__('Gallery'),
 						array($this,'gallery_meta_callback'),
 						$post_type,
 						'normal',
@@ -80,15 +86,17 @@
 		<table class="form-table">
 			<tr>
 				<td>
-					<a class="gallery-add button" href="#" data-uploader-title="Добавить изображение" data-uploader-button-text="Добавить изображение">Добавить изображение</a>
+					<a class="gallery-add button" href="#" data-uploader-title="<?php _e('Add image'); ?>" data-uploader-button-text="<?php _e('Add image'); ?>"><?php _e('Add image'); ?></a>
 					<ul id="gallery-metabox-list">
 						<?php if ($ids): ?>
 							<?php  foreach ($ids as $key => $value) : $image = wp_get_attachment_image_src($value); ?>
 							<li>
 								<input type="hidden" name="gallery[<?php echo $key; ?>]" value="<?php echo $value; ?>">
 								<img class="image-preview" src="<?php echo $image[0]; ?>">
-								<a class="change-image button button-small" href="#" data-uploader-title="Изменить" data-uploader-button-text="Изменить">Изменить</a><br>
-								<small><a class="remove-image" href="#">Удалить</a></small>
+								<div class="gallery-actions">
+                                    <a class="change-image button button-small" href="#" data-uploader-title="<?php _e('Change image'); ?>" data-uploader-button-text="<?php _e('Change image'); ?>"><?php _e('Change image'); ?></a><br>
+                                    <small><a class="remove-image" href="#"><?php _e('Remove image'); ?></a></small>
+                                </div>
 							</li>
 						<?php endforeach; ?>
 						<?php endif; ?>
