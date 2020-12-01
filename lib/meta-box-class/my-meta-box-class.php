@@ -539,7 +539,7 @@ class AT_Meta_Box {
     echo '<script>
         jQuery(document).ready(function() {
           var '.$counter.' = '.$c.';
-          jQuery("body").on(\'click\',"#add-'.$field['id'].'" function() {
+          jQuery("body").on(\'click\',"#add-'.$field['id'].'", function() {
             '.$counter.' = '.$counter.' + 1;
             jQuery(this).before(\''.$js_code.'\');            
             update_repeater_fields();
