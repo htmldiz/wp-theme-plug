@@ -109,7 +109,7 @@ class AT_Meta_Box {
    *
    * @param array $meta_box 
    */
-  public function __construct ( $meta_box ) {
+  public function __construct ( $meta_boxes ) {
     
     // If we are not in admin area exit.
     if ( ! is_admin() )
@@ -117,7 +117,16 @@ class AT_Meta_Box {
     
     //load translation
     add_filter('init', array($this,'load_textdomain'));
-
+	$config = array(
+	  'title'          => 'Demo meta box',
+	  'pages'          => array(),
+	  'context'        => 'normal',
+	  'fields'         => array(),
+	  'local_images'   => false,
+	  'use_with_theme' => false
+	);
+	$meta_box = array_merge( $config, $meta_boxes );
+	$meta_box['id'] = sanitize_title($meta_box['title']);
     // Assign meta box values to local variables and add it's missed values.
     $this->_meta_box = $meta_box;
     $this->_prefix = (isset($meta_box['prefix'])) ? $meta_box['prefix'] : ''; 
@@ -204,8 +213,8 @@ class AT_Meta_Box {
       // Enqueu JQuery UI, use proper version.
       
       // Enqueu JQuery select2 library, use proper version.
-      wp_enqueue_style('at-multiselect-select2-css', $plugin_path . '/js/select2/select2.css', array(), null);
-      wp_enqueue_script('at-multiselect-select2-js', $plugin_path . '/js/select2/select2.js', array('jquery'), false, true);
+      wp_enqueue_style('at-multiselect-select2-css', 'https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/css/select2.min.css', array(), null);
+      wp_enqueue_script('at-multiselect-select2-js', 'https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/js/select2.min.js', array('jquery'), false, true);
   }
   public function check_field_posts() {
     
@@ -216,8 +225,8 @@ class AT_Meta_Box {
       // Enqueu JQuery UI, use proper version.
       
       // Enqueu JQuery select2 library, use proper version.
-      wp_enqueue_style('at-multiselect-select2-css', $plugin_path . '/js/select2/select2.css', array(), null);
-      wp_enqueue_script('at-multiselect-select2-js', $plugin_path . '/js/select2/select2.js', array('jquery'), false, true);
+	  wp_enqueue_style('at-multiselect-select2-css', 'https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/css/select2.min.css', array(), null);
+	  wp_enqueue_script('at-multiselect-select2-js', 'https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/js/select2.min.js', array('jquery'), false, true);
   }
 
   /**
@@ -944,7 +953,7 @@ class AT_Meta_Box {
     }
     // select
     else {
-      echo "<select ".( isset($field['style'])? "style='{$field['style']}' " : '' )." class='at-posts-select".( isset($field['class'])? ' ' . $field['class'] : '' )."' name='{$field['id']}" . ($field['multiple'] ? "[]' multiple='multiple' style='height:auto'" : "'") . ">";
+      echo "<select ".( isset($field['style'])? "style='{$field['style']}' " : '' )." data-posttype='".$options['args']['post_type']."' class='at-posts-select".( isset($field['class'])? ' ' . $field['class'] : '' )."' name='{$field['id']}" . ($field['multiple'] ? "[]' multiple='multiple' style='height:auto'" : "'") . ">";
       if (isset($field['emptylabel']))
         echo '<option value="-1">'.(isset($field['emptylabel'])? $field['emptylabel']: __('Select ...','mmb')).'</option>';
       foreach ($posts as $p) {
@@ -1818,7 +1827,7 @@ class AT_Meta_Box {
   public function addPosts($id,$options,$args,$repeater=false){
     $post_type = isset($options['post_type'])? $options['post_type']: (isset($args['post_type']) ? $args['post_type']: 'post');
     $type = isset($options['type'])? $options['type']: 'select';
-    $q = array('posts_per_page' => -1, 'post_type' => $post_type);
+    $q = array('posts_per_page' => 10, 'post_type' => $post_type);
     if (isset($options['args']) )
       $q = array_merge($q,(array)$options['args']);
     $options = array('post_type' =>$post_type,'type'=>$type,'args'=>$q);

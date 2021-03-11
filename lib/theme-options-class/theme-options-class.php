@@ -84,8 +84,17 @@ if ( ! class_exists( 'AT_ThemeSettings') ) :
          *
          * @param array $meta_box
          */
-        public function __construct ( $meta_box ) {
+        public function __construct ( $meta_boxes ) {
 
+	        $config = array(
+		        'title'          => 'Demo box',
+		        'pages'          => array(),
+		        'context'        => 'normal',
+		        'fields'         => array(),
+		        'local_images'   => false,
+		        'use_with_theme' => false
+	        );
+	        $meta_box = array_merge( $config, $meta_boxes );
             // If we are not in admin area exit.
             if ( ! is_admin() )
                 return;
@@ -132,7 +141,7 @@ if ( ! class_exists( 'AT_ThemeSettings') ) :
         		unset($come_data['at_meta_box_nonce']);
 			}
 			foreach ($come_data as $key => $value){
-				update_option($key,$value);
+				update_option($key,stripslashes($value));
 			}
 		}
         /**
@@ -229,8 +238,8 @@ if ( ! class_exists( 'AT_ThemeSettings') ) :
             // Enqueu JQuery UI, use proper version.
 
             // Enqueu JQuery select2 library, use proper version.
-            wp_enqueue_style('at-multiselect-select2-css', $plugin_path . '/js/select2/select2.css', array(), null);
-            wp_enqueue_script('at-multiselect-select2-js', $plugin_path . '/js/select2/select2.js', array('jquery'), false, true);
+	        wp_enqueue_style('at-multiselect-select2-css', 'https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/css/select2.min.css', array(), null);
+	        wp_enqueue_script('at-multiselect-select2-js', 'https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/js/select2.min.js', array('jquery'), false, true);
         }
         public function check_field_posts() {
 
@@ -241,8 +250,8 @@ if ( ! class_exists( 'AT_ThemeSettings') ) :
             // Enqueu JQuery UI, use proper version.
 
             // Enqueu JQuery select2 library, use proper version.
-            wp_enqueue_style('at-multiselect-select2-css', $plugin_path . '/js/select2/select2.css', array(), null);
-            wp_enqueue_script('at-multiselect-select2-js', $plugin_path . '/js/select2/select2.js', array('jquery'), false, true);
+	        wp_enqueue_style('at-multiselect-select2-css', 'https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/css/select2.min.css', array(), null);
+	        wp_enqueue_script('at-multiselect-select2-js', 'https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/js/select2.min.js', array('jquery'), false, true);
         }
 
         /**
@@ -1532,6 +1541,24 @@ if ( ! class_exists( 'AT_ThemeSettings') ) :
          */
         public function addSelect($id,$options,$args,$repeater=false){
             $new_field = array('type' => 'select','id'=> $id,'std' => array(),'desc' => '','style' =>'','name' => 'Select Field','multiple' => false,'options' => $options);
+            $new_field = array_merge($new_field, $args);
+            if(false === $repeater){
+                $this->_fields[] = $new_field;
+            }else{
+                return $new_field;
+            }
+        }
+        public function addSelectgform($id,$args,$repeater=false){
+        	global $wpdb;
+	        $forms = $wpdb->get_results( "SELECT `id`,`title` FROM {$wpdb->prefix}gf_form", OBJECT );
+	        $options = array();
+	        if($forms){
+		        foreach ($forms as $form) {
+			        $options[$form->id] = $form->title;
+		        }
+	        }
+	        $args['options'] = $options;
+	        $new_field = array('type' => 'select','id'=> $id,'std' => array(),'desc' => '','style' =>'','name' => 'Select Field','multiple' => false,'options' => $options);
             $new_field = array_merge($new_field, $args);
             if(false === $repeater){
                 $this->_fields[] = $new_field;
