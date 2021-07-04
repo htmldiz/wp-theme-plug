@@ -1,19 +1,19 @@
-<?php 
+<?php
 /**
  * Tax Meta Class
  *
- * The Tax Meta Class is used by including it in your plugin r theme files and using its methods to 
- * Add meta fields for WordPress Taxonomies (categories,tags and custom taxonomies). It is meant to be very simple and 
+ * The Tax Meta Class is used by including it in your plugin r theme files and using its methods to
+ * Add meta fields for WordPress Taxonomies (categories,tags and custom taxonomies). It is meant to be very simple and
  * straightforward.
  *
- * This class is derived from My-Meta-Box (https://github.com/bainternet/My-Meta-Box script) which is 
- * a class for creating custom meta boxes for WordPress. 
- * 
+ * This class is derived from My-Meta-Box (https://github.com/bainternet/My-Meta-Box script) which is
+ * a class for creating custom meta boxes for WordPress.
+ *
  * @version 2.1.0
- * @copyright 2012-2015 Ohad Raz 
+ * @copyright 2012-2015 Ohad Raz
  * @author Ohad Raz (email: admin@bainternet.info)
  * @link http://en.bainternet.info
- * 
+ *
  * @license GNU General Public LIcense v3.0 - license.txt
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -25,7 +25,7 @@
  *
  * @package Tax Meta Class
  * @deprecated replace_insert_to_post_text() @since 1.8.3
- * 
+ *
  */
 
 if ( ! class_exists( 'Tax_Meta_Class') ) :
@@ -39,7 +39,7 @@ if ( ! class_exists( 'Tax_Meta_Class') ) :
  * @todo Nothing.
  */
 class Tax_Meta_Class {
-  
+
   /**
    * Holds meta box object
    *
@@ -47,7 +47,7 @@ class Tax_Meta_Class {
    * @access protected
    */
   protected $_meta_box;
-  
+
   /**
    * Holds meta box fields.
    *
@@ -55,7 +55,7 @@ class Tax_Meta_Class {
    * @access protected
    */
   protected $_prefix;
-  
+
   /**
    * Holds Prefix for meta box fields.
    *
@@ -63,7 +63,7 @@ class Tax_Meta_Class {
    * @access protected
    */
   protected $_fields;
-  
+
   /**
    * Use local images.
    *
@@ -71,7 +71,7 @@ class Tax_Meta_Class {
    * @access protected
    */
   protected $_Local_images;
-  
+
   /**
    * What form is this? edit or new term.
    *
@@ -88,17 +88,17 @@ class Tax_Meta_Class {
    * $since 1.0
    */
   protected $SelfPath;
-  
+
   /**
    * Constructor
    *
    * @since 1.0
    * @access public
    *
-   * @param array $meta_box 
+   * @param array $meta_box
    */
   public function __construct ( $meta_boxes ) {
-    
+
     // If we are not in admin area exit.
     if ( ! is_admin() )
       return;
@@ -114,7 +114,7 @@ class Tax_Meta_Class {
     $meta_box = array_merge( $config, $meta_boxes );
     $meta_box['id'] = sanitize_title($meta_box['title']);
     $this->_meta_box = $meta_box;
-    $this->_prefix = (isset($meta_box['prefix'])) ? $meta_box['prefix'] : ''; 
+    $this->_prefix = (isset($meta_box['prefix'])) ? $meta_box['prefix'] : '';
     $this->_fields = $this->_meta_box['fields'];
     $this->_Local_images = (isset($meta_box['local_images'])) ? true : false;
     $this->add_missed_values();
@@ -129,17 +129,17 @@ class Tax_Meta_Class {
     }else{
       $this->SelfPath = plugins_url( 'Tax-meta-class', plugin_basename( dirname( __FILE__ ) ) );
     }
-    
-    
+
+
     // Add Actions
     add_action( 'admin_init', array( $this, 'add' ) );
-    
+
     // Load common js, css files
     // Must enqueue for all pages as we need js for the media upload, too.
     add_action( 'admin_print_styles', array( $this, 'load_scripts_styles' ) );
 
     //overwrite insert into post button
-    
+
     //delete term meta on term deletion
     add_action('delete_term', array($this,'delete_taxonomy_metadata'), 10,2);
   }
@@ -151,11 +151,11 @@ class Tax_Meta_Class {
    * @access public
    */
   public function load_scripts_styles() {
-    
+
     // Get Plugin Path
     $plugin_path = $this->SelfPath;
     //only load styles and js when needed
-    /* 
+    /*
      * since 1.0
      */
     $taxnow = isset($_REQUEST['taxonomy'])? $_REQUEST['taxonomy'] : '';
@@ -169,11 +169,11 @@ class Tax_Meta_Class {
       wp_enqueue_style( 'tax-meta-clss', $plugin_path . '/css/Tax-meta-class.css' );
       // Enqueue Meta Box Scripts
       wp_enqueue_script( 'tax-meta-clss', $plugin_path . '/js/tax-meta-clss.js', array( 'jquery' ), null, true );
-    
+
     }
-    
+
   }
-  
+
   /**
    * Check the Field Upload, Add needed Actions
    *
@@ -181,16 +181,16 @@ class Tax_Meta_Class {
    * @access public
    */
   public function check_field_upload() {
-    
+
     // Check if the field is an image or file. If not, return.
     if ( ! $this->has_field( 'image' ) && ! $this->has_field( 'file' ) )
       return;
-    
+
     // Make upload feature work event when custom post type doesn't support 'editor'
     wp_enqueue_script( 'jquery-ui-core' );
     wp_enqueue_script( 'jquery-ui-sortable' );
   }
-  
+
   /**
    * Check Field Color
    *
@@ -198,30 +198,31 @@ class Tax_Meta_Class {
    * @access public
    */
   public function check_field_color() {
-    
-    if ( $this->has_field( 'color' ) && $this->is_edit_page() ) {
+
+    if ( $this->has_field( 'color' ) ) {
       // Enqueu built-in script and style for color picker.
-      wp_enqueue_style( 'wp-color-picker' );
-      wp_enqueue_script( 'wp-color-picker' );
+
+	    wp_enqueue_style( 'wp-pl-color-picker','https://cdnjs.cloudflare.com/ajax/libs/jquery-minicolors/2.3.5/jquery.minicolors.css' );
+	    wp_enqueue_script( 'wp-pl-color-picker','https://cdnjs.cloudflare.com/ajax/libs/jquery-minicolors/2.3.5/jquery.minicolors.min.js',array('jquery'),'0.1.1',true );
     }
-    
+
   }
-  
+
   /**
    * Check Field Date
    *
    * @since 1.0
-   * @access public 
+   * @access public
    */
   public function check_field_date() {
-    
+
     if ( $this->has_field( 'date' ) && $this->is_edit_page() ) {
       // Enqueu JQuery UI, use proper version.
       $this->enqueue_jqueryui();
     }
-    
+
   }
-  
+
   /**
    * Check Field Time
    *
@@ -229,15 +230,15 @@ class Tax_Meta_Class {
    * @access public
    */
   public function check_field_time() {
-    
+
     if ( $this->has_field( 'time' ) && $this->is_edit_page() ) {
-      
+
       // Enqueu JQuery UI, use proper version.
       $this->enqueue_jqueryui();
       wp_enqueue_script( 'at-timepicker', '//cdnjs.cloudflare.com/ajax/libs/jquery-ui-timepicker-addon/1.4.5/jquery-ui-timepicker-addon.min.js', array( 'tmc-jquery-ui' ),false,true );
-    }    
+    }
   }
-  
+
   /**
    * Add Meta Box for multiple post types.
    *
@@ -245,13 +246,13 @@ class Tax_Meta_Class {
    * @access public
    */
   public function add() {
-    
+
     // Loop through array
     foreach ( $this->_meta_box['pages'] as $page ) {
       //add fields to edit form
       add_action($page.'_edit_form_fields',array( $this, 'show_edit_form' ));
       //add fields to add new form
-      add_action($page.'_add_form_fields',array( $this, 'show_new_form' )); 
+      add_action($page.'_add_form_fields',array( $this, 'show_new_form' ));
       // this saves the edit fields
       add_action( 'edited_'.$page, array( $this, 'save' ), 10, 2);
       // this saves the add fields
@@ -262,44 +263,44 @@ class Tax_Meta_Class {
     add_action( 'wp_ajax_at_reorder_images',   array( $this, 'reorder_images' ) );
     // Delete file via Ajax
     add_action( 'wp_ajax_at_delete_mupload', array( $this, 'wp_ajax_delete_image' ) );
-    
+
   }
-  
+
   /**
    * Callback function to show fields on add new taxonomy term form.
    *
    * @since 1.0
-   * @access public 
+   * @access public
    */
   public function show_new_form($term_id){
     $this->_form_type = 'new';
     add_action('admin_footer',array($this,'footer_js'));
     $this->show($term_id);
   }
-  
+
   /**
    * Callback function to show fields on term edit form.
    *
    * @since 1.0
-   * @access public 
+   * @access public
    */
   public function show_edit_form($term_id){
     $this->_form_type = 'edit';
     $this->show($term_id);
   }
-  
-  
-  
+
+
+
   /**
    * Callback function to show fields in meta box.
    *
    * @since 1.0
-   * @access public 
+   * @access public
    */
   public function show($term_id) {
     $term_id = is_object($term_id)? $term_id->term_id: $term_id;
     wp_nonce_field( basename(__FILE__), 'tax_meta_class_nonce' );
-    
+
     foreach ( $this->_fields as $field ) {
     $multiple = isset($field['multiple'])? $field['multiple'] : false;
     $name = $field['id'];
@@ -312,7 +313,7 @@ class Tax_Meta_Class {
     $meta = ( $meta !== '' ) ? $meta : (isset($field['std'])? $field['std'] : '');
     if ('image' != $field['type'] && $field['type'] != 'repeater')
         $meta = is_array( $meta ) ? array_map( 'esc_attr', $meta ) : esc_attr( $meta );
-      
+
       echo '<tr class="form-field">';
       // Call Separated methods for displaying each type of field.
       call_user_func ( array( $this, 'show_field_' . $field['type'] ), $field, is_array($meta)? $meta : stripslashes($meta) );
@@ -320,12 +321,12 @@ class Tax_Meta_Class {
     }
     echo '</table>';
   }
-  
+
   /**
    * Show Repeater Fields.
    *
-   * @param string $field 
-   * @param string $meta 
+   * @param string $field
+   * @param string $meta
    * @since 1.0
    * @access public
    */
@@ -334,9 +335,9 @@ class Tax_Meta_Class {
     $plugin_path = $this->SelfPath;
     $this->show_field_begin( $field, $meta );
     echo "<div class='at-repeat' id='{$field['id']}'>";
-    
+
     $c = 0;
-        
+
       if (count($meta) > 0 && is_array($meta) ){
          foreach ($meta as $me){
            //for labling toggles
@@ -363,12 +364,12 @@ class Tax_Meta_Class {
             call_user_func ( array( $this, 'show_field_' . $f['type'] ), $f, is_array($m)? $m : stripslashes($m),true);
           else
             call_user_func ( array( $this, 'show_field_' . $f['type'] ), $f, is_array($m)? $m : stripslashes($m));
-            
+
           if (!$field['inline']){
             echo '</tr>';
-          } 
+          }
         }
-        if ($field['inline']){  
+        if ($field['inline']){
           echo '</tr>';
         }
         echo '</table>
@@ -387,7 +388,7 @@ class Tax_Meta_Class {
         }
         echo '" alt="'.__('Remove','tax-meta').'" title="'.__('Remove','tax-meta').'" id="remove-'.$field['id'].'"></div>';
         $c = $c + 1;
-        
+
         }
         $this->show_field_end( $field, $meta );
       }
@@ -399,18 +400,18 @@ class Tax_Meta_Class {
       echo 'http://i.imgur.com/w5Tuc.png';
     }
     echo '" alt="'.__('Add','tax-meta').'" title="'.__('Add','tax-meta').'" id="add-'.$field['id'].'"><br/></div>';
-    
+
     //create all fields once more for js function and catch with object buffer
     ob_start();
     echo '<div class="at-repater-block"><table class="repeater-table">';
     if ($field['inline']){
       echo '<tr class="at-inline" VALIGN="top">';
-    } 
+    }
     foreach ($field['fields'] as $f){
       //reset var $id for repeater
       $id = '';
       $id = $field['id'].'[CurrentCounter]['.$f['id'].']';
-      $f['id'] = $id; 
+      $f['id'] = $id;
       if (!$field['inline']){
         echo '<tr>';
       }
@@ -418,14 +419,14 @@ class Tax_Meta_Class {
             call_user_func ( array( $this, 'show_field_' . $f['type'] ), $f, '',true);
           else
             call_user_func ( array( $this, 'show_field_' . $f['type'] ), $f, '');
-      
+
       if (!$field['inline']){
         echo '</tr>';
-      }  
+      }
     }
     if ($field['inline']){
       echo '</tr>';
-    } 
+    }
     echo '</table><img src="';
     if ($this->_Local_images){
       echo $plugin_path.'/images/remove.png';
@@ -451,7 +452,7 @@ class Tax_Meta_Class {
                   jQuery(this).parent().remove();
               });
           });
-        </script>';            
+        </script>';
     echo '<br/><style>
 .at-inline{line-height: 1 !important;}
 .at-inline .at-field{border: 0px !important;}
@@ -462,12 +463,12 @@ class Tax_Meta_Class {
 </style>';
     $this->show_field_end($field, $meta);
   }
-  
+
   /**
    * Begin Field.
    *
-   * @param string $field 
-   * @param string $meta 
+   * @param string $field
+   * @param string $meta
    * @since 1.0
    * @access public
    */
@@ -492,14 +493,14 @@ class Tax_Meta_Class {
         echo '</th><td>';
     }
   }
-  
+
   /**
    * End Field.
    *
-   * @param string $field 
-   * @param string $meta 
+   * @param string $field
+   * @param string $meta
    * @since 1.0
-   * @access public 
+   * @access public
    */
   public function show_field_end( $field, $meta=NULL ,$group = false) {
     if (isset($field['group'])){
@@ -511,69 +512,69 @@ class Tax_Meta_Class {
         }
       }else {
         if ( isset($field['desc']) && $field['desc'] != '' ) {
-          echo "<p class='description'>{$field['desc']}</p><br/>";  
+          echo "<p class='description'>{$field['desc']}</p><br/>";
         }else{
           echo '<br/>';
-        }  
-      }    
+        }
+      }
     }else{
       if ( isset($field['desc']) && $field['desc'] != '' ) {
         echo "<p class='description'>{$field['desc']}</p>";
       }
       if ($this->_form_type == 'edit'){
-        echo '</td>';  
+        echo '</td>';
       }else{
         echo '</td></div>';
       }
     }
   }
-  
+
   /**
    * Show Field Text.
    *
-   * @param string $field 
-   * @param string $meta 
+   * @param string $field
+   * @param string $meta
    * @since 1.0
    * @access public
    */
-  public function show_field_text( $field, $meta) {  
+  public function show_field_text( $field, $meta) {
     $this->show_field_begin( $field, $meta );
     echo "<input type='text' class='at-text' name='{$field['id']}' id='{$field['id']}' value='{$meta}' style='{$field['style']}' size='30' />";
     $this->show_field_end( $field, $meta );
   }
-  
+
   /**
    * Show Field hidden.
    *
-   * @param string $field 
-   * @param string|mixed $meta 
+   * @param string $field
+   * @param string|mixed $meta
    * @since 0.1.3
    * @access public
    */
-  public function show_field_hidden( $field, $meta) {  
+  public function show_field_hidden( $field, $meta) {
     //$this->show_field_begin( $field, $meta );
     echo "<input type='hidden' class='at-text' name='{$field['id']}' id='{$field['id']}' value='{$meta}'/>";
     //$this->show_field_end( $field, $meta );
   }
-  
+
   /**
    * Show Field Paragraph.
    *
-   * @param string $field 
+   * @param string $field
    * @since 0.1.3
    * @access public
    */
-  public function show_field_paragraph( $field) {  
+  public function show_field_paragraph( $field) {
     //$this->show_field_begin( $field, $meta );
     echo "<p style='{$field['style']}'>".$field['value']."</p>";
     //$this->show_field_end( $field, $meta );
   }
-    
+
   /**
    * Show Field Textarea.
    *
-   * @param string $field 
-   * @param string $meta 
+   * @param string $field
+   * @param string $meta
    * @since 1.0
    * @access public
    */
@@ -582,20 +583,20 @@ class Tax_Meta_Class {
       echo "<textarea class='at-textarea large-text' style='{$field['style']}' name='{$field['id']}' id='{$field['id']}' cols='60' rows='10'>{$meta}</textarea>";
     $this->show_field_end( $field, $meta );
   }
-  
+
   /**
    * Show Field Select.
    *
-   * @param string $field 
-   * @param string $meta 
+   * @param string $field
+   * @param string $meta
    * @since 1.0
    * @access public
    */
   public function show_field_select( $field, $meta ) {
-    
-    if ( ! is_array( $meta ) ) 
+
+    if ( ! is_array( $meta ) )
       $meta = (array) $meta;
-      
+
     $this->show_field_begin( $field, $meta );
       echo "<select class='at-select' style='{$field['style']}' name='{$field['id']}" . ( $field['multiple'] ? "[]' id='{$field['id']}' multiple='multiple'" : "'" ) . ">";
       foreach ( $field['options'] as $key => $value ) {
@@ -603,49 +604,49 @@ class Tax_Meta_Class {
       }
       echo "</select>";
     $this->show_field_end( $field, $meta );
-    
+
   }
-  
+
   /**
    * Show Radio Field.
    *
-   * @param string $field 
-   * @param string $meta 
+   * @param string $field
+   * @param string $meta
    * @since 1.0
-   * @access public 
+   * @access public
    */
   public function show_field_radio( $field, $meta ) {
-    
+
     if ( ! is_array( $meta ) )
       $meta = (array) $meta;
-      
+
     $this->show_field_begin( $field, $meta );
       foreach ( $field['options'] as $key => $value ) {
         echo "<input style='{$field['style']}' type='radio' class='at-radio' name='{$field['id']}' value='{$key}'" . checked( in_array( $key, $meta ), true, false ) . " /> <span class='at-radio-label'>{$value}</span>";
       }
     $this->show_field_end( $field, $meta );
   }
-  
+
   /**
    * Show Checkbox Field.
    *
-   * @param string $field 
-   * @param string $meta 
+   * @param string $field
+   * @param string $meta
    * @since 1.0
    * @access public
    */
   public function show_field_checkbox( $field, $meta ) {
-  
+
     $this->show_field_begin($field, $meta);
     echo "<input type='checkbox' style='{$field['style']}' class='rw-checkbox' name='{$field['id']}' id='{$field['id']}'" . checked(!empty($meta), true, false) . " />";
     $this->show_field_end( $field, $meta );
   }
-  
+
   /**
    * Show Wysiwig Field.
    *
-   * @param string $field 
-   * @param string $meta 
+   * @param string $field
+   * @param string $meta
    * @since 1.0
    * @access public
    */
@@ -662,12 +663,12 @@ class Tax_Meta_Class {
     }
     $this->show_field_end( $field, $meta );
   }
-  
+
   /**
    * Show File Field.
    *
-   * @param string $field 
-   * @param string $meta 
+   * @param string $field
+   * @param string $meta
    * @since 1.0
    * @access public
    */
@@ -697,12 +698,12 @@ class Tax_Meta_Class {
 		echo "<input type='button' class='{$multiple} button simplePanelfileUpload' id='{$id}' value='Upload File' data-mime_type='{$type}' data-ext='{$ext}'/>";
     $this->show_field_end( $field, $meta );
   }
-  
+
   /**
    * Show Image Field.
    *
-   * @param array $field 
-   * @param array $meta 
+   * @param array $field
+   * @param array $meta
    * @since 1.0
    * @access public
    */
@@ -736,58 +737,58 @@ class Tax_Meta_Class {
     echo "<input class='{$multiple} button simplePanelimageUpload' id='{$id}' value='".__('Upload Image')."' type='button'/>";
     $this->show_field_end( $field, $meta );
   }
-  
+
   /**
    * Show Color Field.
    *
-   * @param string $field 
-   * @param string $meta 
+   * @param string $field
+   * @param string $meta
    * @since 1.0
    * @access public
    */
   public function show_field_color( $field, $meta ) {
-    
-    if ( empty( $meta ) ) 
+
+    if ( empty( $meta ) )
       $meta = '#';
-      
+
     $this->show_field_begin( $field, $meta );
     echo '<input class="at-color" type="text" name="'.$field['id'].'" value="'.esc_attr($meta).'"/>';
     $this->show_field_end($field, $meta);
-    
+
   }
 
   /**
    * Show Checkbox List Field
    *
-   * @param string $field 
-   * @param string $meta 
+   * @param string $field
+   * @param string $meta
    * @since 1.0
    * @access public
    */
   public function show_field_checkbox_list( $field, $meta ) {
-    
-    if ( ! is_array( $meta ) ) 
+
+    if ( ! is_array( $meta ) )
       $meta = (array) $meta;
-      
+
     $this->show_field_begin($field, $meta);
-    
+
       $html = array();
-    
+
       foreach ($field['options'] as $key => $value) {
         $html[] = "<input style='{$field['style']}' type='checkbox' class='at-checkbox_list' name='{$field['id']}[]' value='{$key}'" . checked( in_array( $key, $meta ), true, false ) . " /> {$value}";
       }
-    
+
       echo implode( '<br />' , $html );
-      
+
     $this->show_field_end($field, $meta);
-    
+
   }
-  
+
   /**
    * Show Date Field.
    *
-   * @param string $field 
-   * @param string $meta 
+   * @param string $field
+   * @param string $meta
    * @since 1.0
    * @access public
    */
@@ -796,37 +797,37 @@ class Tax_Meta_Class {
       echo "<input style='{$field['style']}' type='text' class='at-date' name='{$field['id']}' id='{$field['id']}' rel='{$field['format']}' value='{$meta}' size='30' />";
     $this->show_field_end( $field, $meta );
   }
-  
+
   /**
    * Show time field.
    *
-   * @param string $field 
-   * @param string $meta 
+   * @param string $field
+   * @param string $meta
    * @since 1.0
-   * @access public 
+   * @access public
    */
   public function show_field_time( $field, $meta ) {
     $this->show_field_begin( $field, $meta );
       echo "<input style='{$field['style']}' type='text' class='at-time' name='{$field['id']}' id='{$field['id']}' rel='{$field['format']}' value='{$meta}' size='30' />";
     $this->show_field_end( $field, $meta );
   }
-  
+
    /**
    * Show Posts field.
    * used creating a posts/pages/custom types checkboxlist or a select dropdown
-   * @param string $field 
-   * @param string $meta 
+   * @param string $field
+   * @param string $meta
    * @since 1.0
-   * @access public 
+   * @access public
    */
   public function show_field_posts($field, $meta) {
     global $post;
-    
+
     if (!is_array($meta)) $meta = (array) $meta;
     $this->show_field_begin($field, $meta);
     $options = $field['options'];
     $posts = get_posts($options['args']);
-    
+
     // checkbox_list
     if ('checkbox_list' == $options['type']) {
       foreach ($posts as $p) {
@@ -841,28 +842,28 @@ class Tax_Meta_Class {
       }
       echo "</select>";
     }
-    
+
     $this->show_field_end($field, $meta);
   }
-  
+
   /**
    * Show Taxonomy field.
    * used creating a category/tags/custom taxonomy checkboxlist or a select dropdown
-   * @param string $field 
-   * @param string $meta 
+   * @param string $field
+   * @param string $meta
    * @since 1.0
-   * @access public 
-   * 
+   * @access public
+   *
    * @uses get_terms()
    */
   public function show_field_taxonomy($field, $meta) {
     global $post;
-    
+
     if (!is_array($meta)) $meta = (array) $meta;
     $this->show_field_begin($field, $meta);
     $options = $field['options'];
     $terms = get_terms($options['taxonomy'], $options['args']);
-    
+
     // checkbox_list
     if ('checkbox_list' == $options['type']) {
       foreach ($terms as $term) {
@@ -881,16 +882,16 @@ class Tax_Meta_Class {
       }
       echo "</select>";
     }
-    
+
     $this->show_field_end($field, $meta);
   }
-  
+
   /**
    * Save Data from Metabox
    *
-   * @param string $term_id 
+   * @param string $term_id
    * @since 1.0
-   * @access public 
+   * @access public
    */
   public function save( $term_id ) {
 
@@ -907,9 +908,9 @@ class Tax_Meta_Class {
     {
       return $term_id;
     }
-    
+
     foreach ( $this->_fields as $field ) {
-      
+
       $name = $field['id'];
       $type = $field['type'];
       $multiple = isset($field['multiple'])? $field['multiple']: false;
@@ -920,13 +921,13 @@ class Tax_Meta_Class {
           $old = $this->get_tax_meta( $term_id, $name, !$multiple  );
       }
       $new = ( isset( $_POST[$name] ) ) ? $_POST[$name] : ( ( $multiple ) ? array() : '' );
-            
+
 
       // Validate meta value
       if ( class_exists( 'Tax_Meta_Validate' ) && method_exists( 'Tax_Meta_Validate', $field['validate_func'] ) ) {
         $new = call_user_func( array( 'Tax_Meta_Validate', $field['validate_func'] ), $new );
       }
-      
+
       //skip on Paragraph field
       if ($type != "paragraph"){
 
@@ -938,89 +939,89 @@ class Tax_Meta_Class {
           $this->save_field( $term_id, $field, $old, $new );
         }
       }
-      
+
     } // End foreach
   }
-  
+
   /**
    * Common function for saving fields.
    *
-   * @param string $term_id 
-   * @param string $field 
-   * @param string $old 
-   * @param string|mixed $new 
+   * @param string $term_id
+   * @param string $field
+   * @param string $old
+   * @param string|mixed $new
    * @since 1.0
    * @access public
    */
   public function save_field( $term_id, $field, $old, $new ) {
     $name = $field['id'];
     //wordpress 4.4 term meta support
-    if ( function_exists('get_term_meta')){ 
+    if ( function_exists('get_term_meta')){
       delete_term_meta($term_id, $name);
     }else{
       $this->delete_tax_meta( $term_id, $name );
     }
-    if ( $new === '' || $new === array() ) 
+    if ( $new === '' || $new === array() )
       return;
-    
-    if ( function_exists('update_term_meta')){ 
+
+    if ( function_exists('update_term_meta')){
       update_term_meta( $term_id, $name, $new );
     }else{
       $this->update_tax_meta( $term_id, $name, $new );
     }
-  }  
-  
+  }
+
   /**
    * function for saving image field.
    *
-   * @param string $term_id 
-   * @param string $field 
-   * @param string $old 
-   * @param string|mixed $new 
+   * @param string $term_id
+   * @param string $field
+   * @param string $old
+   * @param string|mixed $new
    * @since 1.0
    * @access public
    */
   public function save_field_image( $term_id, $field, $old, $new ) {
     $name = $field['id'];
-    if ( function_exists('delete_term_meta')){ 
+    if ( function_exists('delete_term_meta')){
       delete_term_meta($term_id, $name);
     }else{
       $this->delete_tax_meta( $term_id, $name );
     }
 
-    if ( $new === '' || $new === array() || $new['id'] == '' || $new['url'] == '') 
+    if ( $new === '' || $new === array() || $new['id'] == '' || $new['url'] == '')
       return;
-    
-    if ( function_exists('update_term_meta')){ 
+
+    if ( function_exists('update_term_meta')){
       update_term_meta( $term_id, $name, $new );
     }else{
       $this->update_tax_meta( $term_id, $name, $new );
     }
   }
-  
+
   /*
    * Save Wysiwyg Field.
    *
-   * @param string $term_id 
-   * @param string $field 
-   * @param string $old 
-   * @param string $new 
+   * @param string $term_id
+   * @param string $field
+   * @param string $old
+   * @param string $new
    * @since 1.0
-   * @access public 
+   * @access public
    */
   public function save_field_wysiwyg( $term_id, $field, $old, $new ) {
     $this->save_field( $term_id, $field, $old, $new );
   }
-  
+
   /**
    * Save repeater Fields.
    *
-   * @param string $term_id 
-   * @param string $field 
-   * @param string|mixed $old 
-   * @param string|mixed $new 
+   * @param string $term_id
+   * @param string $field
+   * @param string|mixed $old
+   * @param string|mixed $new
    * @since 1.0
-   * @access public 
+   * @access public
    */
   public function save_field_repeater( $term_id, $field, $old, $new ) {
     if (is_array($new) && count($new) > 0){
@@ -1029,7 +1030,7 @@ class Tax_Meta_Class {
           $type = $f['type'];
           switch($type) {
             case 'wysiwyg':
-                $n[$f['id']] = wpautop( $n[$f['id']] ); 
+                $n[$f['id']] = wpautop( $n[$f['id']] );
                 break;
               case 'file':
                 $n[$f['id']] = $this->save_field_file_repeater($term_id,$f,'',$n[$f['id']]);
@@ -1042,14 +1043,14 @@ class Tax_Meta_Class {
           $temp[] = $n;
       }
       if (isset($temp) && count($temp) > 0 && !$this->is_array_empty($temp)){
-        if ( function_exists('update_term_meta')){ 
+        if ( function_exists('update_term_meta')){
           update_term_meta( $term_id,$field['id'],$temp );
         }else{
           $this->update_tax_meta( $term_id,$field['id'],$temp );
         }
       }else{
         //  remove old meta if exists
-        if ( function_exists('delete_term_meta')){ 
+        if ( function_exists('delete_term_meta')){
           delete_term_meta($term_id, $field['id']);
         }else{
           $this->delete_tax_meta($term_id,$field['id']);
@@ -1057,43 +1058,43 @@ class Tax_Meta_Class {
       }
     }else{
       //  remove old meta if exists
-      if ( function_exists('delete_term_meta')){ 
+      if ( function_exists('delete_term_meta')){
         delete_term_meta($term_id, $field['id']);
       }else{
         $this->delete_tax_meta($term_id,$field['id']);
-      }      
+      }
     }
   }
-  
+
   /**
    * Save File Field.
    *
-   * @param string $term_id 
-   * @param string $field 
-   * @param string $old 
-   * @param string $new 
+   * @param string $term_id
+   * @param string $field
+   * @param string $old
+   * @param string $new
    * @since 1.0
    * @access public
    */
   public function save_field_file( $term_id, $field, $old, $new ) {
 
     $name = $field['id'];
-    if ( function_exists('delete_term_meta')){ 
+    if ( function_exists('delete_term_meta')){
       delete_term_meta($term_id, $name);
     }else{
       $this->delete_tax_meta($term_id,$name);
     }
-    if ( $new === '' || $new === array() || $new['id'] == '' || $new['url'] == '') 
+    if ( $new === '' || $new === array() || $new['id'] == '' || $new['url'] == '')
       return;
-    
-    if ( function_exists('update_term_meta')){ 
+
+    if ( function_exists('update_term_meta')){
       update_term_meta( $term_id, $name, $new);
     }else{
       $this->update_tax_meta( $term_id, $name, $new );
     }
   }
-  
-  
+
+
   /**
    * Add missed values for meta box.
    *
@@ -1101,33 +1102,33 @@ class Tax_Meta_Class {
    * @access public
    */
   public function add_missed_values() {
-    
+
     // Default values for meta box
     $this->_meta_box = array_merge( array( 'context' => 'normal', 'priority' => 'high', 'pages' => array( 'post' ) ),(array)$this->_meta_box );
 
     // Default values for fields
     foreach ( (array)$this->_fields as $field ) {
-      
+
       $multiple = in_array( $field['type'], array( 'checkbox_list', 'file', 'image' ) );
       $std = $multiple ? array() : '';
       $format = 'date' == $field['type'] ? 'yy-mm-dd' : ( 'time' == $field['type'] ? 'hh:mm' : '' );
 
       $field = array_merge( array( 'multiple' => $multiple, 'std' => $std, 'desc' => '', 'format' => $format, 'validate_func' => '' ), $field );
-    
+
     } // End foreach
-    
+
   }
 
   /**
    * Check if field with $type exists.
    *
-   * @param string $type 
+   * @param string $type
    * @since 1.0
    * @access public
    */
   public function has_field( $type ) {
     foreach ( $this->_fields as $field ) {
-      if ( $type == $field['type'] ) 
+      if ( $type == $field['type'] )
         return true;
       elseif('repeater' == $field['type'] ){
         foreach((array)$field["fields"] as $repeater_field)  {
@@ -1148,32 +1149,32 @@ class Tax_Meta_Class {
     global $pagenow;
     return ( $pagenow == 'edit-tags.php' );
   }
-  
+
   /**
    * Fixes the odd indexing of multiple file uploads.
    *
-   * Goes from the format: 
+   * Goes from the format:
    * $_FILES['field']['key']['index']
    * to
    * The More standard and appropriate:
    * $_FILES['field']['index']['key']
    *
-   * @param string $files 
+   * @param string $files
    * @since 1.0
    * @access public
    */
   public function fix_file_array( &$files ) {
-    
+
     $output = array();
-    
+
     foreach ( $files as $key => $list ) {
       foreach ( $list as $index => $value ) {
         $output[$index][$key] = $value;
       }
     }
-    
+
     return $files = $output;
-  
+
   }
 
   /**
@@ -1185,9 +1186,9 @@ class Tax_Meta_Class {
    * @access public
    */
   public function get_jqueryui_ver() {
-    
+
     global $wp_version;
-    
+
     if ( version_compare( $wp_version, '4.0', '>=') ) {
       return '1.11.2';
     }
@@ -1203,8 +1204,8 @@ class Tax_Meta_Class {
     if ( version_compare( $wp_version, '3.1', '>=') ) {
       return '1.8.10';
     }
-    
-    return '1.7.3';  
+
+    return '1.7.3';
   }
 
   /**
@@ -1217,7 +1218,7 @@ class Tax_Meta_Class {
     wp_enqueue_style( 'tmc-jquery-ui-css', 'http://ajax.googleapis.com/ajax/libs/jqueryui/' . $this->get_jqueryui_ver() . '/themes/'.apply_filters('tmc_jquery_ui_theme','smoothness').'/jquery-ui.css' );
     wp_enqueue_script( 'tmc-jquery-ui', 'https://ajax.googleapis.com/ajax/libs/jqueryui/' . $this->get_jqueryui_ver() . '/jquery-ui.min.js', array( 'jquery' ) );
   }
-  
+
   /**
    *  Add Field to meta box (generic function)
    *  @author Ohad Raz
@@ -1231,7 +1232,7 @@ class Tax_Meta_Class {
     $new_field = array_merge($new_field, $args);
     $this->_fields[] = $new_field;
   }
-  
+
   /**
    *  Add Text Field to meta box
    *  @author Ohad Raz
@@ -1244,7 +1245,7 @@ class Tax_Meta_Class {
    *    'std' => // default value, string optional
    *    'style' =>   // custom style for field, string optional
    *    'validate_func' => // validate function, string optional
-   *   @param $repeater bool  is this a field inside a repeatr? true|false(default) 
+   *   @param $repeater bool  is this a field inside a repeatr? true|false(default)
    */
   public function addText($id,$args,$repeater=false){
     $new_field = array('type' => 'text','id'=> $id,'std' => '','desc' => '','style' =>'','name' => 'Text Field','multiple' => false);
@@ -1267,7 +1268,7 @@ class Tax_Meta_Class {
    *    'std' => // default value, string optional
    *    'style' =>   // custom style for field, string optional
    *    'validate_func' => // validate function, string optional
-   *   @param $repeater bool  is this a field inside a repeatr? true|false(default) 
+   *   @param $repeater bool  is this a field inside a repeatr? true|false(default)
    */
   public function addHidden($id,$args,$repeater=false){
     $new_field = array('type' => 'hidden','id'=> $id,'std' => '','desc' => '','style' =>'','name' => 'Text Field', 'multiple' => false);
@@ -1278,7 +1279,7 @@ class Tax_Meta_Class {
       return $new_field;
     }
   }
-  
+
   /**
    *  Add Paragraph to meta box
    *  @author Ohad Raz
@@ -1286,7 +1287,7 @@ class Tax_Meta_Class {
    *  @access public
    *  @param $id string  field id, i.e. the meta key
    *  @param $value  paragraph html
-   *  @param $repeater bool  is this a field inside a repeatr? true|false(default) 
+   *  @param $repeater bool  is this a field inside a repeatr? true|false(default)
    */
   public function addParagraph($id,$args,$repeater=false){
     $new_field = array('type' => 'paragraph','id'=> $id,'value' => '','style' =>'', 'std' => '', 'multiple' => false);
@@ -1297,7 +1298,7 @@ class Tax_Meta_Class {
       return $new_field;
     }
   }
-    
+
   /**
    *  Add Checkbox Field to meta box
    *  @author Ohad Raz
@@ -1309,7 +1310,7 @@ class Tax_Meta_Class {
    *    'desc' => // field description, string optional
    *    'std' => // default value, string optional
    *    'validate_func' => // validate function, string optional
-   *  @param $repeater bool  is this a field inside a repeatr? true|false(default) 
+   *  @param $repeater bool  is this a field inside a repeatr? true|false(default)
    */
   public function addCheckbox($id,$args,$repeater=false){
     $new_field = array('type' => 'checkbox','id'=> $id,'std' => '','desc' => '','style' =>'','name' => 'Checkbox Field','multiple' => false);
@@ -1334,8 +1335,8 @@ class Tax_Meta_Class {
    *    'std' => // default value, string optional
    *    'validate_func' => // validate function, string optional
    *  @param $repeater bool  is this a field inside a repeatr? true|false(default)
-   *  
-   *   @return : remember to call: $checkbox_list = $this->get_tax_meta(get_the_ID(), 'meta_name', false); 
+   *
+   *   @return : remember to call: $checkbox_list = $this->get_tax_meta(get_the_ID(), 'meta_name', false);
    *   which means the last param as false to get the values in an array
    */
   public function addCheckboxList($id,$options,$args,$repeater=false){
@@ -1347,7 +1348,7 @@ class Tax_Meta_Class {
       return $new_field;
     }
   }
-  
+
   /**
    *  Add Textarea Field to meta box
    *  @author Ohad Raz
@@ -1360,7 +1361,7 @@ class Tax_Meta_Class {
    *    'std' => // default value, string optional
    *    'style' =>   // custom style for field, string optional
    *    'validate_func' => // validate function, string optional
-   *  @param $repeater bool  is this a field inside a repeatr? true|false(default) 
+   *  @param $repeater bool  is this a field inside a repeatr? true|false(default)
    */
   public function addTextarea($id,$args,$repeater=false){
     $new_field = array('type' => 'textarea','id'=> $id,'std' => '','desc' => '','style' =>'','name' => 'Textarea Field','multiple' => false);
@@ -1371,21 +1372,21 @@ class Tax_Meta_Class {
       return $new_field;
     }
   }
-  
+
   /**
    *  Add Select Field to meta box
    *  @author Ohad Raz
    *  @since 1.0
    *  @access public
    *  @param $id string field id, i.e. the meta key
-   *  @param $options (array)  array of key => value pairs for select options  
+   *  @param $options (array)  array of key => value pairs for select options
    *  @param $args mixed|array
    *    'name' => // field name/label string optional
    *    'desc' => // field description, string optional
    *    'std' => // default value, (array) optional
    *    'multiple' => // select multiple values, optional. Default is false.
    *    'validate_func' => // validate function, string optional
-   *  @param $repeater bool  is this a field inside a repeatr? true|false(default) 
+   *  @param $repeater bool  is this a field inside a repeatr? true|false(default)
    */
   public function addSelect($id,$options,$args,$repeater=false){
     $new_field = array('type' => 'select','id'=> $id,'std' => array(),'desc' => '','style' =>'','name' => 'Select Field','multiple' => false,'options' => $options);
@@ -1396,8 +1397,8 @@ class Tax_Meta_Class {
       return $new_field;
     }
   }
-  
-  
+
+
   /**
    *  Add Radio Field to meta box
    *  @author Ohad Raz
@@ -1409,7 +1410,7 @@ class Tax_Meta_Class {
    *    'name' => // field name/label string optional
    *    'desc' => // field description, string optional
    *    'std' => // default value, string optional
-   *    'validate_func' => // validate function, string optional 
+   *    'validate_func' => // validate function, string optional
    *  @param $repeater bool  is this a field inside a repeatr? true|false(default)
    */
   public function addRadio($id,$options,$args,$repeater=false){
@@ -1434,7 +1435,7 @@ class Tax_Meta_Class {
    *    'std' => // default value, string optional
    *    'validate_func' => // validate function, string optional
    *    'format' => // date format, default yy-mm-dd. Optional. Default "'d MM, yy'"  See more formats here: http://goo.gl/Wcwxn
-   *  @param $repeater bool  is this a field inside a repeatr? true|false(default) 
+   *  @param $repeater bool  is this a field inside a repeatr? true|false(default)
    */
   public function addDate($id,$args,$repeater=false){
     $new_field = array('type' => 'date','id'=> $id,'style' =>'','std' => '','desc' => '','format'=>'d MM, yy','name' => 'Date Field','multiple' => false);
@@ -1458,7 +1459,7 @@ class Tax_Meta_Class {
    *    'std' => // default value, string optional
    *    'validate_func' => // validate function, string optional
    *    'format' => // time format, default hh:mm. Optional. See more formats here: http://goo.gl/83woX
-   *  @param $repeater bool  is this a field inside a repeatr? true|false(default) 
+   *  @param $repeater bool  is this a field inside a repeatr? true|false(default)
    */
   public function addTime($id,$args,$repeater=false){
     $new_field = array('type' => 'time','id'=> $id,'std' => '','style' =>'','desc' => '','format'=>'hh:mm','name' => 'Time Field','multiple' => false);
@@ -1469,7 +1470,7 @@ class Tax_Meta_Class {
       return $new_field;
     }
   }
-  
+
   /**
    *  Add Color Field to meta box
    *  @author Ohad Raz
@@ -1481,7 +1482,7 @@ class Tax_Meta_Class {
    *    'desc' => // field description, string optional
    *    'std' => // default value, string optional
    *    'validate_func' => // validate function, string optional
-   *  @param $repeater bool  is this a field inside a repeatr? true|false(default) 
+   *  @param $repeater bool  is this a field inside a repeatr? true|false(default)
    */
   public function addColor($id,$args,$repeater=false){
     $new_field = array('type' => 'color','id'=> $id,'std' => '','style' =>'','desc' => '','name' => 'ColorPicker Field','multiple' => false);
@@ -1492,7 +1493,7 @@ class Tax_Meta_Class {
       return $new_field;
     }
   }
-  
+
   /**
    *  Add Image Field to meta box
    *  @author Ohad Raz
@@ -1503,7 +1504,7 @@ class Tax_Meta_Class {
    *    'name' => // field name/label string optional
    *    'desc' => // field description, string optional
    *    'validate_func' => // validate function, string optional
-   *  @param $repeater bool  is this a field inside a repeatr? true|false(default) 
+   *  @param $repeater bool  is this a field inside a repeatr? true|false(default)
    */
   public function addImage($id,$args,$repeater=false){
     $new_field = array('type' => 'image','id'=> $id,'desc' => '','style' =>'','name' => 'Image Field', 'std' => '','multiple' => false);
@@ -1514,7 +1515,7 @@ class Tax_Meta_Class {
       return $new_field;
     }
   }
-  
+
   /**
    *  Add File Field to meta box
    *  @author Ohad Raz
@@ -1524,7 +1525,7 @@ class Tax_Meta_Class {
    *  @param $args mixed|array
    *    'name' => // field name/label string optional
    *    'desc' => // field description, string optional
-   *    'validate_func' => // validate function, string optional 
+   *    'validate_func' => // validate function, string optional
    *  @param $repeater bool  is this a field inside a repeatr? true|false(default)
    */
   public function addFile($id,$args,$repeater=false){
@@ -1548,7 +1549,7 @@ class Tax_Meta_Class {
    *    'desc' => // field description, string optional
    *    'std' => // default value, string optional
    *    'style' =>   // custom style for field, string optional Default 'width: 300px; height: 400px'
-   *    'validate_func' => // validate function, string optional 
+   *    'validate_func' => // validate function, string optional
    *  @param $repeater bool  is this a field inside a repeatr? true|false(default)
    */
   public function addWysiwyg($id,$args,$repeater=false){
@@ -1560,7 +1561,7 @@ class Tax_Meta_Class {
       return $new_field;
     }
   }
-  
+
   /**
    *  Add Taxonomy Field to meta box
    *  @author Ohad Raz
@@ -1570,12 +1571,12 @@ class Tax_Meta_Class {
    *  @param $options mixed|array options of taxonomy field
    *    'taxonomy' =>    // taxonomy name can be category,post_tag or any custom taxonomy default is category
    *     'type' =>  // how to show taxonomy? 'select' (default) or 'checkbox_list'
-   *    'args' =>  // arguments to query taxonomy, see http://goo.gl/uAANN default ('hide_empty' => false)  
+   *    'args' =>  // arguments to query taxonomy, see http://goo.gl/uAANN default ('hide_empty' => false)
    *  @param $args mixed|array
    *    'name' => // field name/label string optional
    *    'desc' => // field description, string optional
    *    'std' => // default value, string optional
-   *    'validate_func' => // validate function, string optional 
+   *    'validate_func' => // validate function, string optional
    *  @param $repeater bool  is this a field inside a repeatr? true|false(default)
    */
   public function addTaxonomy($id,$options,$args,$repeater=false){
@@ -1601,12 +1602,12 @@ class Tax_Meta_Class {
    *  @param $id string  field id, i.e. the meta key
    *  @param $options mixed|array options of taxonomy field
    *    'type' =>  // how to show posts? 'select' (default) or 'checkbox_list'
-   *    'args' =>  // arguments to query posts, see http://goo.gl/is0yK default ('posts_per_page' => -1, 'post_type' => 'post')  
+   *    'args' =>  // arguments to query posts, see http://goo.gl/is0yK default ('posts_per_page' => -1, 'post_type' => 'post')
    *  @param $args mixed|array
    *    'name' => // field name/label string optional
    *    'desc' => // field description, string optional
    *    'std' => // default value, string optional
-   *    'validate_func' => // validate function, string optional 
+   *    'validate_func' => // validate function, string optional
    *  @param $repeater bool  is this a field inside a repeatr? true|false(default)
    */
   public function addPosts($id,$options,$args,$repeater=false){
@@ -1620,7 +1621,7 @@ class Tax_Meta_Class {
       return $new_field;
     }
   }
-  
+
   /**
    *  Add repeater Field Block to meta box
    *  @author Ohad Raz
@@ -1633,15 +1634,15 @@ class Tax_Meta_Class {
    *    'std' => // default value, string optional
    *    'style' =>   // custom style for field, string optional
    *    'validate_func' => // validate function, string optional
-   *    'fields' => //fields to repeater  
+   *    'fields' => //fields to repeater
    */
   public function addRepeaterBlock($id,$args){
     $new_field = array('type' => 'repeater','id'=> $id,'name' => 'Reapeater Field','fields' => array(),'inline'=> false);
     $new_field = array_merge($new_field, $args);
     $this->_fields[] = $new_field;
   }
-  
-  
+
+
   /**
    * Finish Declaration of Meta Box
    * @author Ohad Raz
@@ -1651,7 +1652,7 @@ class Tax_Meta_Class {
   public function Finish() {
     $this->add_missed_values();
   }
-  
+
   /**
    * Helper function to check for empty arrays
    * @author Ohad Raz
@@ -1662,7 +1663,7 @@ class Tax_Meta_Class {
   public function is_array_empty($array){
     if (!is_array($array))
       return true;
-    
+
     foreach ($array as $a){
       if (is_array($a)){
         foreach ($a as $sub_a){
@@ -1676,19 +1677,19 @@ class Tax_Meta_Class {
     }
     return true;
   }
-  
-  
+
+
   //get term meta field
   public function get_tax_meta($term_id,$key,$multi = false){
     $t_id = (is_object($term_id))? $term_id->term_id: $term_id;
-    $m = get_option( 'tax_meta_'.$t_id);  
+    $m = get_option( 'tax_meta_'.$t_id);
     if (isset($m[$key])){
       return $m[$key];
     }else{
       return '';
     }
   }
-  
+
   //delete meta
   public function delete_tax_meta($term_id,$key){
     $m = get_option( 'tax_meta_'.$term_id);
@@ -1697,18 +1698,18 @@ class Tax_Meta_Class {
     }
     update_option('tax_meta_'.$term_id,$m);
   }
-  
+
   //update meta
   public function update_tax_meta($term_id,$key,$value){
     $m = get_option( 'tax_meta_'.$term_id);
     $m[$key] = $value;
     update_option('tax_meta_'.$term_id,$m);
   }
-  
+
 
   /**
    * delete_taxonomy_metadata
-   * 
+   *
    * delete meta on term deletion
    *
    *  answers issue #16
@@ -1724,9 +1725,9 @@ class Tax_Meta_Class {
     }
   }
 
-  
+
   /**
-   * footer_js 
+   * footer_js
    *  fix issue #2
    *  @author Ohad Raz
    *  @since 1.7.4
@@ -1744,7 +1745,7 @@ class Tax_Meta_Class {
           if(jQuery("#the-list>tr").length !== numberOfRows){
               //update new count
               numberOfRows = jQuery("#the-list>tr").length;
-              //clear form 
+              //clear form
               clear_form_meta();
           }
       });
@@ -1770,7 +1771,7 @@ class Tax_Meta_Class {
     </SCRIPT>
     <?php
   }
-  
+
 } // End Class
 
 endif; // End Check Class Exists
@@ -1782,7 +1783,7 @@ endif; // End Check Class Exists
 if (!function_exists('get_tax_meta')){
 	function get_tax_meta($term_id,$key,$multi = false){
 		$t_id = (is_object($term_id))? $term_id->term_id: $term_id;
-		$m = get_option( 'tax_meta_'.$t_id);  
+		$m = get_option( 'tax_meta_'.$t_id);
 		if (isset($m[$key])){
 			return $m[$key];
 		}else{
@@ -1815,7 +1816,7 @@ if (!function_exists('update_tax_meta')){
 if (!function_exists('get_tax_meta_strip')){
 	function get_tax_meta_strip($term_id,$key,$multi = false){
 		$t_id = (is_object($term_id))? $term_id->term_id: $term_id;
-		$m = get_option( 'tax_meta_'.$t_id);  
+		$m = get_option( 'tax_meta_'.$t_id);
 		if (isset($m[$key])){
 			return is_array($m[$key])? $m[$key] : stripslashes($m[$key]);
 		}else{

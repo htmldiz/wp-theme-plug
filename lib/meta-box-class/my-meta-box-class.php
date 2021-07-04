@@ -1,22 +1,22 @@
-<?php 
+<?php
 /**
  * Custom Meta Box Class
  *
- * The Meta Box Class is used by including it in your plugin files and using its methods to 
- * create custom meta boxes for custom post types. It is meant to be very simple and 
+ * The Meta Box Class is used by including it in your plugin files and using its methods to
+ * create custom meta boxes for custom post types. It is meant to be very simple and
  * straightforward. For name spacing purposes, All Types metabox ( meaning you can do anything with it )
- * is used. 
+ * is used.
  *
- * This class is derived from Meta Box script by Rilwis<rilwis@gmail.com> version 3.2. which later was forked 
- * by Cory Crowley (email: cory.ivan@gmail.com) The purpose of this class is not to rewrite the script but to 
- * modify and change small things and adding a few field types that i needed to my personal preference. 
+ * This class is derived from Meta Box script by Rilwis<rilwis@gmail.com> version 3.2. which later was forked
+ * by Cory Crowley (email: cory.ivan@gmail.com) The purpose of this class is not to rewrite the script but to
+ * modify and change small things and adding a few field types that i needed to my personal preference.
  * The original author did a great job in writing this class, so all props goes to him.
- * 
+ *
  * @version 3.1.1
  * @copyright 2011 - 2013
  * @author Ohad Raz (email: admin@bainternet.info)
  * @link http://en.bainternet.info
- * 
+ *
  * @license GNU General Public LIcense v3.0 - license.txt
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -43,7 +43,7 @@ if ( ! class_exists( 'AT_Meta_Box') ) :
  * @todo Nothing.
  */
 class AT_Meta_Box {
-  
+
   /**
    * Holds meta box object
    *
@@ -51,7 +51,7 @@ class AT_Meta_Box {
    * @access protected
    */
   protected $_meta_box;
-  
+
   /**
    * Holds meta box fields.
    *
@@ -59,7 +59,7 @@ class AT_Meta_Box {
    * @access protected
    */
   protected $_prefix;
-  
+
   /**
    * Holds Prefix for meta box fields.
    *
@@ -67,7 +67,7 @@ class AT_Meta_Box {
    * @access protected
    */
   protected $_fields;
-  
+
   /**
    * Use local images.
    *
@@ -75,7 +75,7 @@ class AT_Meta_Box {
    * @access protected
    */
   protected $_Local_images;
-  
+
   /**
    * SelfPath to allow themes as well as plugins.
    *
@@ -84,7 +84,7 @@ class AT_Meta_Box {
    * @since 1.6
    */
   protected $SelfPath;
-  
+
   /**
    * $field_types  holds used field types
    * @var array
@@ -107,14 +107,14 @@ class AT_Meta_Box {
    * @since 1.0
    * @access public
    *
-   * @param array $meta_box 
+   * @param array $meta_box
    */
   public function __construct ( $meta_boxes ) {
-    
+
     // If we are not in admin area exit.
     if ( ! is_admin() )
       return;
-    
+
     //load translation
     add_filter('init', array($this,'load_textdomain'));
 	$config = array(
@@ -129,7 +129,7 @@ class AT_Meta_Box {
 	$meta_box['id'] = sanitize_title($meta_box['title']);
     // Assign meta box values to local variables and add it's missed values.
     $this->_meta_box = $meta_box;
-    $this->_prefix = (isset($meta_box['prefix'])) ? $meta_box['prefix'] : ''; 
+    $this->_prefix = (isset($meta_box['prefix'])) ? $meta_box['prefix'] : '';
     $this->_fields = $this->_meta_box['fields'];
     $this->_Local_images = (isset($meta_box['local_images'])) ? true : false;
     $this->add_missed_values();
@@ -144,7 +144,7 @@ class AT_Meta_Box {
     else{
       $this->SelfPath = plugins_url( 'meta-box-class', plugin_basename( dirname( __FILE__ ) ) );
     }
-    
+
     // Add metaboxes
     add_action( 'add_meta_boxes', array( $this, 'add' ), 10, 2 );
     //add_action( 'wp_insert_post', array( $this, 'save' ) );
@@ -156,7 +156,7 @@ class AT_Meta_Box {
     add_filter('wp_handle_upload_prefilter', array($this,'Validate_upload_file_type'));
 
   }
-  
+
   /**
    * Load all Javascript and CSS
    *
@@ -164,20 +164,20 @@ class AT_Meta_Box {
    * @access public
    */
   public function load_scripts_styles() {
-    
+
     // Get Plugin Path
     $plugin_path = $this->SelfPath;
-    
-    
+
+
     //only load styles and js when needed
-    /* 
+    /*
      * since 1.8
      */
     global $typenow;
     if (in_array($typenow,$this->_meta_box['pages']) && $this->is_edit_page()){
       // Enqueue Meta Box Style
       wp_enqueue_style( 'at-meta-box', $plugin_path . '/css/meta-box.css' );
-      
+
       // Enqueue Meta Box Scripts
       wp_enqueue_script( 'at-meta-box', $plugin_path . '/js/meta-box.js', array( 'jquery' ), null, true );
 
@@ -189,15 +189,15 @@ class AT_Meta_Box {
         wp_enqueue_script( 'jquery-ui-sortable' );
       }
       // Check for special fields and add needed actions for them.
-      
+
       //this replaces the ugly check fields methods calls
       foreach (array('upload','color','date','time','code','select','posts') as $type) {
         call_user_func ( array( $this, 'check_field_' . $type ));
       }
     }
-    
+
   }
-  
+
   /**
    * Check the Field select, Add needed Actions
    *
@@ -205,25 +205,25 @@ class AT_Meta_Box {
    * @access public
    */
   public function check_field_select() {
-    
+
     // Check if the field is an image or file. If not, return.
     if ( ! $this->has_field( 'select' ))
       return;
       $plugin_path = $this->SelfPath;
       // Enqueu JQuery UI, use proper version.
-      
+
       // Enqueu JQuery select2 library, use proper version.
       wp_enqueue_style('at-multiselect-select2-css', 'https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/css/select2.min.css', array(), null);
       wp_enqueue_script('at-multiselect-select2-js', 'https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/js/select2.min.js', array('jquery'), false, true);
   }
   public function check_field_posts() {
-    
+
     // Check if the field is an image or file. If not, return.
     if ( ! $this->has_field( 'posts' ))
       return;
       $plugin_path = $this->SelfPath;
       // Enqueu JQuery UI, use proper version.
-      
+
       // Enqueu JQuery select2 library, use proper version.
 	  wp_enqueue_style('at-multiselect-select2-css', 'https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/css/select2.min.css', array(), null);
 	  wp_enqueue_script('at-multiselect-select2-js', 'https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/js/select2.min.js', array('jquery'), false, true);
@@ -236,16 +236,16 @@ class AT_Meta_Box {
    * @access public
    */
   public function check_field_upload() {
-    
+
     // Check if the field is an image or file. If not, return.
     if ( ! $this->has_field( 'image' ) && ! $this->has_field( 'file' ) )
       return;
-    
-    // Add data encoding type for file uploading.  
+
+    // Add data encoding type for file uploading.
     add_action( 'post_edit_form_tag', array( $this, 'add_enctype' ) );
-    
+
   }
-  
+
   /**
    * Add data encoding type for file uploading
    *
@@ -255,7 +255,7 @@ class AT_Meta_Box {
   public function add_enctype () {
     printf(' enctype="multipart/form-data" encoding="multipart/form-data" ');
   }
-  
+
   /**
    * Check Field Color
    *
@@ -263,21 +263,21 @@ class AT_Meta_Box {
    * @access public
    */
   public function check_field_color() {
-    
+
     if ( $this->has_field( 'color' ) && $this->is_edit_page() ) {
-      wp_enqueue_style( 'wp-color-picker' );
-      wp_enqueue_script( 'wp-color-picker' );
+	    wp_enqueue_style( 'wp-pl-color-picker','https://cdnjs.cloudflare.com/ajax/libs/jquery-minicolors/2.3.5/jquery.minicolors.css' );
+	    wp_enqueue_script( 'wp-pl-color-picker','https://cdnjs.cloudflare.com/ajax/libs/jquery-minicolors/2.3.5/jquery.minicolors.min.js',array('jquery'),'0.1.1',true );
     }
   }
-  
+
   /**
    * Check Field Date
    *
    * @since 1.0
-   * @access public 
+   * @access public
    */
   public function check_field_date() {
-    
+
     if ( $this->has_field( 'date' ) && $this->is_edit_page() ) {
       // Enqueu JQuery UI, use proper version.
     $plugin_path = $this->SelfPath;
@@ -286,7 +286,7 @@ class AT_Meta_Box {
       wp_enqueue_script( 'jquery-ui-datepicker');
     }
   }
-  
+
   /**
    * Check Field Time
    *
@@ -294,7 +294,7 @@ class AT_Meta_Box {
    * @access public
    */
   public function check_field_time() {
-    
+
     if ( $this->has_field( 'time' ) && $this->is_edit_page() ) {
       $plugin_path = $this->SelfPath;
       // Enqueu JQuery UI, use proper version.
@@ -303,7 +303,7 @@ class AT_Meta_Box {
       wp_enqueue_script( 'at-timepicker', $plugin_path .'/js/jquery-ui/jquery-ui-timepicker-addon.js', array( 'jquery-ui-slider','jquery-ui-datepicker' ),false,true );
     }
   }
-  
+
   /**
    * Check Field code editor
    *
@@ -311,7 +311,7 @@ class AT_Meta_Box {
    * @access public
    */
   public function check_field_code() {
-    
+
     if ( $this->has_field( 'code' ) && $this->is_edit_page() ) {
       $plugin_path = $this->SelfPath;
       // Enqueu codemirror js and css
@@ -324,10 +324,10 @@ class AT_Meta_Box {
       wp_enqueue_script('at-code-js-css',$plugin_path .'/js/codemirror/css.js',array('jquery'),false,true);
       wp_enqueue_script('at-code-js-clike',$plugin_path .'/js/codemirror/clike.js',array('jquery'),false,true);
       wp_enqueue_script('at-code-js-php',$plugin_path .'/js/codemirror/php.js',array('jquery'),false,true);
-      
+
     }
   }
-  
+
   /**
    * Add Meta Box for multiple post types.
    *
@@ -363,12 +363,12 @@ class AT_Meta_Box {
       add_meta_box( $this->_meta_box['id'], $this->_meta_box['title'], array( $this, 'show' ),$postType, $this->_meta_box['context'], $this->_meta_box['priority'] );
     }
   }
-  
+
   /**
    * Callback function to show fields in meta box.
    *
    * @since 1.0
-   * @access public 
+   * @access public
    */
   public function show($post) {
     $this->inGroup = false;
@@ -407,7 +407,7 @@ class AT_Meta_Box {
 
         if (!in_array($field['type'], array('image', 'repeater','file')))
           $meta = is_array( $meta ) ? array_map( 'esc_attr', $meta ) : esc_attr( $meta );
-        
+
         if ($this->inGroup !== true)
           $dashname = sanitize_title_with_dashes($field["name"]);
           echo '<div class="tr-'.$dashname;
@@ -422,7 +422,7 @@ class AT_Meta_Box {
           $dashname = sanitize_title_with_dashes($field["name"]);
           echo '<div class="tr-'.$dashname.' ">';
         }
-        
+
         // Call Separated methods for displaying each type of field.
         call_user_func ( array( $this, 'show_field_' . $field['type'] ), $field, $meta );
 
@@ -438,28 +438,28 @@ class AT_Meta_Box {
       echo '</div>';
     }
   }
-  
+
   /**
    * Show Repeater Fields.
    *
-   * @param string $field 
-   * @param string $meta 
+   * @param string $field
+   * @param string $meta
    * @since 1.0
    * @access public
    */
   public function show_field_repeater( $field, $meta ) {
-    global $post;  
+    global $post;
     // Get Plugin Path
     $plugin_path = $this->SelfPath;
     $this->show_field_begin( $field, $meta );
     $class = '';
-      if ($field['sortable'])  
+      if ($field['sortable'])
         $class = " repeater-sortable";
     echo "<div class='at-repeat".$class."' id='{$field['id']}'>";
-    
+
     $c = 0;
     $meta = get_post_meta($post->ID,$field['id'],true);
-    
+
       if (is_array($meta) && count($meta) > 0 ){
          foreach ($meta as $me){
            //for labling toggles
@@ -485,13 +485,13 @@ class AT_Meta_Box {
           $f['id'] = $id;
           if (!$field['inline']){
             echo '<div>';
-          } 
+          }
           call_user_func ( array( $this, 'show_field_' . $f['type'] ), $f, $m);
           if (!$field['inline']){
             echo '</div>';
-          } 
+          }
         }
-        if ($field['inline']){  
+        if ($field['inline']){
           echo '</div>';
         }
         echo '</div>';
@@ -510,18 +510,18 @@ class AT_Meta_Box {
       }
 
     echo '<a id="add-'.$field['id'].'" href="#add-'.$field['id'].'">+ Add</a><br/></div>';
-    
+
     //create all fields once more for js function and catch with object buffer
     ob_start();
     echo '<div class="at-repater-block"><div class="repeater-table">';
     if ($field['inline']){
       echo '<div class="at-inline" VALIGN="top">';
-    } 
+    }
     foreach ($field['fields'] as $f){
       //reset var $id for repeater
       $id = '';
       $id = $field['id'].'[CurrentCounter]['.$f['id'].']';
-      $f['id'] = $id; 
+      $f['id'] = $id;
       if (!$field['inline']){
         echo '<div>';
       }
@@ -531,11 +531,11 @@ class AT_Meta_Box {
         call_user_func ( array( $this, 'show_field_' . $f['type'] ), $f, '',true);
       if (!$field['inline']){
         echo '</div>';
-      }  
+      }
     }
     if ($field['inline']){
       echo '</div>';
-    } 
+    }
     echo '</div><a id="remove-'.$field['id'].'" href="#remove-'.$field['id'].'"><svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
    width="774.266px" height="774.266px" viewBox="0 0 774.266 774.266" style="enable-background:new 0 0 774.266 774.266;"
    xml:space="preserve"><g><g><path d="M640.35,91.169H536.971V23.991C536.971,10.469,526.064,0,512.543,0c-1.312,0-2.187,0.438-2.614,0.875 C509.491,0.438,508.616,0,508.179,0H265.212h-1.74h-1.75c-13.521,0-23.99,10.469-23.99,23.991v67.179H133.916 c-29.667,0-52.783,23.116-52.783,52.783v38.387v47.981h45.803v491.6c0,29.668,22.679,52.346,52.346,52.346h415.703 c29.667,0,52.782-22.678,52.782-52.346v-491.6h45.366v-47.981v-38.387C693.133,114.286,670.008,91.169,640.35,91.169z M285.713,47.981h202.84v43.188h-202.84V47.981z M599.349,721.922c0,3.061-1.312,4.363-4.364,4.363H179.282 c-3.052,0-4.364-1.303-4.364-4.363V230.32h424.431V721.922z M644.715,182.339H129.551v-38.387c0-3.053,1.312-4.802,4.364-4.802 H640.35c3.053,0,4.365,1.749,4.365,4.802V182.339z"/><rect x="475.031" y="286.593" width="48.418" height="396.942"/><rect x="363.361" y="286.593" width="48.418" height="396.942"/><rect x="251.69" y="286.593" width="48.418" height="396.942"/></g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g></svg></a></div>';
@@ -567,12 +567,12 @@ class AT_Meta_Box {
 </style>';
     $this->show_field_end($field, $meta);
   }
-  
+
   /**
    * Begin Field.
    *
-   * @param string $field 
-   * @param string $meta 
+   * @param string $field
+   * @param string $meta
    * @since 1.0
    * @access public
    */
@@ -584,14 +584,14 @@ class AT_Meta_Box {
       echo "</div>";
     }
   }
-  
+
   /**
    * End Field.
    *
-   * @param string $field 
-   * @param string $meta 
+   * @param string $field
+   * @param string $meta
    * @since 1.0
-   * @access public 
+   * @access public
    */
   public function show_field_end( $field, $meta=NULL ,$group = false) {
     //print description
@@ -599,30 +599,30 @@ class AT_Meta_Box {
       echo "<div class='desc-field'>{$field['desc']}</div>";
     echo "</div>";
   }
-  
+
   /**
    * Show Field Text.
    *
-   * @param string $field 
-   * @param string $meta 
+   * @param string $field
+   * @param string $meta
    * @since 1.0
    * @access public
    */
-  public function show_field_text( $field, $meta) {  
+  public function show_field_text( $field, $meta) {
     $this->show_field_begin( $field, $meta );
     echo "<input type='text' class='at-text".( isset($field['class'])? ' ' . $field['class'] : '' )."' name='{$field['id']}' id='{$field['id']}' value='{$meta}' size='30' ".( isset($field['style'])? "style='{$field['style']}'" : '' )."/>";
     $this->show_field_end( $field, $meta );
   }
-  
+
   /**
    * Show Field number.
    *
-   * @param string $field 
-   * @param string $meta 
+   * @param string $field
+   * @param string $meta
    * @since 1.0
    * @access public
    */
-  public function show_field_number( $field, $meta) {  
+  public function show_field_number( $field, $meta) {
     $this->show_field_begin( $field, $meta );
     $step = (isset($field['step']) || $field['step'] != '1')? "step='".$field['step']."' ": '';
     $min = isset($field['min'])? "min='".$field['min']."' ": '';
@@ -634,9 +634,9 @@ class AT_Meta_Box {
   /**
    * Show Field code editor.
    *
-   * @param string $field 
+   * @param string $field
    * @author Ohad Raz
-   * @param string $meta 
+   * @param string $meta
    * @since 2.1
    * @access public
    */
@@ -645,40 +645,40 @@ class AT_Meta_Box {
     echo "<textarea class='code_text".( isset($field['class'])? ' ' . $field['class'] : '' )."' name='{$field['id']}' id='{$field['id']}' data-lang='{$field['syntax']}' ".( isset($field['style'])? "style='{$field['style']}'" : '' )." data-theme='{$field['theme']}'>{$meta}</textarea>";
     $this->show_field_end( $field, $meta );
   }
-  
-  
+
+
   /**
    * Show Field hidden.
    *
-   * @param string $field 
-   * @param string|mixed $meta 
+   * @param string $field
+   * @param string|mixed $meta
    * @since 0.1.3
    * @access public
    */
-  public function show_field_hidden( $field, $meta) {  
+  public function show_field_hidden( $field, $meta) {
     //$this->show_field_begin( $field, $meta );
     echo "<input type='hidden' ".( isset($field['style'])? "style='{$field['style']}' " : '' )."class='at-text".( isset($field['class'])? ' ' . $field['class'] : '' )."' name='{$field['id']}' id='{$field['id']}' value='{$meta}'/>";
     //$this->show_field_end( $field, $meta );
   }
-  
+
   /**
    * Show Field Paragraph.
    *
-   * @param string $field 
+   * @param string $field
    * @since 0.1.3
    * @access public
    */
-  public function show_field_paragraph( $field) {  
+  public function show_field_paragraph( $field) {
     //$this->show_field_begin( $field, $meta );
     echo '<p>'.$field['value'].'</p>';
     //$this->show_field_end( $field, $meta );
   }
-    
+
   /**
    * Show Field Textarea.
    *
-   * @param string $field 
-   * @param string $meta 
+   * @param string $field
+   * @param string $meta
    * @since 1.0
    * @access public
    */
@@ -687,20 +687,20 @@ class AT_Meta_Box {
       echo "<textarea class='at-textarea large-text".( isset($field['class'])? ' ' . $field['class'] : '' )."' name='{$field['id']}' id='{$field['id']}' ".( isset($field['style'])? "style='{$field['style']}' " : '' )." cols='60' rows='10'>{$meta}</textarea>";
     $this->show_field_end( $field, $meta );
   }
-  
+
   /**
    * Show Field Select.
    *
-   * @param string $field 
-   * @param string $meta 
+   * @param string $field
+   * @param string $meta
    * @since 1.0
    * @access public
    */
   public function show_field_select( $field, $meta ) {
-    
-    if ( ! is_array( $meta ) ) 
+
+    if ( ! is_array( $meta ) )
       $meta = (array) $meta;
-      
+
     $this->show_field_begin( $field, $meta );
       echo "<select ".( isset($field['style'])? "style='{$field['style']}' " : '' )." class='at-select".( isset($field['class'])? ' ' . $field['class'] : '' )."' name='{$field['id']}" . ( $field['multiple'] ? "[]' id='{$field['id']}' multiple='multiple'" : "'" ) . ">";
       foreach ( $field['options'] as $key => $value ) {
@@ -708,68 +708,68 @@ class AT_Meta_Box {
       }
       echo "</select>";
     $this->show_field_end( $field, $meta );
-    
+
   }
-  
+
   /**
    * Show Radio Field.
    *
-   * @param string $field 
-   * @param string $meta 
+   * @param string $field
+   * @param string $meta
    * @since 1.0
-   * @access public 
+   * @access public
    */
   public function show_field_radio( $field, $meta ) {
-    
+
     if ( ! is_array( $meta ) )
       $meta = (array) $meta;
-      
+
     $this->show_field_begin( $field, $meta );
       foreach ( $field['options'] as $key => $value ) {
         echo "<input type='radio' ".( isset($field['style'])? "style='{$field['style']}' " : '' )." class='at-radio".( isset($field['class'])? ' ' . $field['class'] : '' )."' name='{$field['id']}' value='{$key}'" . checked( in_array( $key, $meta ), true, false ) . " /> <span class='at-radio-label'>{$value}</span>";
       }
     $this->show_field_end( $field, $meta );
   }
-  
+
   /**
    * Show Checkbox Field.
    *
-   * @param string $field 
-   * @param string $meta 
+   * @param string $field
+   * @param string $meta
    * @since 1.0
    * @access public
    */
   public function show_field_checkbox( $field, $meta ) {
-    
+
 
     $this->show_field_begin($field, $meta);
     echo "<input type='checkbox' ".( isset($field['style'])? "style='{$field['style']}' " : '' )." class='rw-checkbox".( isset($field['class'])? ' ' . $field['class'] : '' )."' name='{$field['id']}' id='{$field['id']}'" . checked(!empty($meta), true, false) . " />";
     $this->show_field_end( $field, $meta );
-      
+
   }
-  
+
   /**
    * Show Wysiwig Field.
    *
-   * @param string $field 
-   * @param string $meta 
+   * @param string $field
+   * @param string $meta
    * @since 1.0
    * @access public
    */
   public function show_field_wysiwyg( $field, $meta,$in_repeater = false ) {
     $this->show_field_begin( $field, $meta );
-    
+
     if ( $in_repeater )
       echo "<textarea class='at-wysiwyg theEditor large-text".( isset($field['class'])? ' ' . $field['class'] : '' )."' name='{$field['id']}' id='{$field['id']}' cols='60' rows='10'>{$meta}</textarea>";
     else{
       // Use new wp_editor() since WP 3.3
-      $n=10; 
+      $n=10;
       $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        $randomString = ''; 
-        for ($i = 0; $i < $n; $i++) { 
-          $index = rand(0, strlen($characters) - 1); 
-          $randomString .= $characters[$index]; 
-        } 
+        $randomString = '';
+        for ($i = 0; $i < $n; $i++) {
+          $index = rand(0, strlen($characters) - 1);
+          $randomString .= $characters[$index];
+        }
       $settings = ( isset($field['settings']) && is_array($field['settings'])? $field['settings']: array() );
       $settings['editor_class'] = 'at-wysiwyg'.( isset($field['class'])? ' ' . $field['class'] : '' );
       $id = strtolower( $field['id'] );
@@ -777,12 +777,12 @@ class AT_Meta_Box {
     }
     $this->show_field_end( $field, $meta );
   }
-  
+
   /**
    * Show File Field.
    *
-   * @param string $field 
-   * @param string $meta 
+   * @param string $field
+   * @param string $meta
    * @since 1.0
    * @access public
    */
@@ -813,23 +813,23 @@ class AT_Meta_Box {
 
     $this->show_field_end( $field, $meta );
   }
-  
+
   /**
    * Show Image Field.
    *
-   * @param array $field 
-   * @param array $meta 
+   * @param array $field
+   * @param array $meta
    * @since 1.0
    * @access public
    */
   public function show_field_image( $field, $meta ) {
     wp_enqueue_media();
     $this->show_field_begin( $field, $meta );
-        
+
     $std          = isset($field['std'])? $field['std'] : array('id' => '', 'url' => '');
     $name         = esc_attr( $field['id'] );
     $value        = isset($meta['id']) ? $meta : $std;
-    
+
     $value['url'] = isset($meta['src'])? $meta['src'] : $value['url']; //backwords capability
     $has_image    = empty($value['url'])? false : true;
     $w            = isset($field['width'])? $field['width'] : 'auto';
@@ -848,64 +848,64 @@ class AT_Meta_Box {
       echo "<input class='{$multiple} button simplePanelimageUpload' id='{$id}' value='Upload Image' type='button'/>";
     $this->show_field_end( $field, $meta );
   }
-  
+
   /**
    * Show Color Field.
    *
-   * @param string $field 
-   * @param string $meta 
+   * @param string $field
+   * @param string $meta
    * @since 1.0
    * @access public
    */
   public function show_field_color( $field, $meta ) {
-    
-    if ( empty( $meta ) ) 
+
+    if ( empty( $meta ) )
       $meta = '#';
-      
+
     $this->show_field_begin( $field, $meta );
     if( wp_style_is( 'wp-color-picker', 'registered' ) ) { //iris color picker since 3.5
-      echo "<input class='at-color-iris".(isset($field['class'])? " {$field['class']}": "")."' type='text' name='{$field['id']}' id='{$field['id']}' value='{$meta}' size='8' />";  
+      echo "<input class='at-color-iris".(isset($field['class'])? " {$field['class']}": "")."' type='text' name='{$field['id']}' id='{$field['id']}' value='{$meta}' size='8' />";
     }else{
       echo "<input class='at-color".(isset($field['class'])? " {$field['class']}": "")."' type='text' name='{$field['id']}' id='{$field['id']}' value='{$meta}' size='8' />";
       echo "<input type='button' class='at-color-select button' rel='{$field['id']}' value='" . __( 'Select a color' ,'apc') . "'/>";
       echo "<div style='display:none' class='at-color-picker' rel='{$field['id']}'></div>";
     }
     $this->show_field_end($field, $meta);
-    
+
   }
 
   /**
    * Show Checkbox List Field
    *
-   * @param string $field 
-   * @param string $meta 
+   * @param string $field
+   * @param string $meta
    * @since 1.0
    * @access public
    */
   public function show_field_checkbox_list( $field, $meta ) {
-    
-    if ( ! is_array( $meta ) ) 
+
+    if ( ! is_array( $meta ) )
       $meta = (array) $meta;
-      
+
     $this->show_field_begin($field, $meta);
-    
+
       $html = array();
-    
+
       foreach ($field['options'] as $key => $value) {
         $html[] = "<input type='checkbox' ".( isset($field['style'])? "style='{$field['style']}' " : '' )."  class='at-checkbox_list".( isset($field['class'])? ' ' . $field['class'] : '' )."' name='{$field['id']}[]' value='{$key}'" . checked( in_array( $key, $meta ), true, false ) . " /> {$value}";
       }
-    
+
       echo implode( '<br />' , $html );
-      
+
     $this->show_field_end($field, $meta);
-    
+
   }
-  
+
   /**
    * Show Date Field.
    *
-   * @param string $field 
-   * @param string $meta 
+   * @param string $field
+   * @param string $meta
    * @since 1.0
    * @access public
    */
@@ -914,14 +914,14 @@ class AT_Meta_Box {
       echo "<input type='text'  ".( isset($field['style'])? "style='{$field['style']}' " : '' )." class='at-date".( isset($field['class'])? ' ' . $field['class'] : '' )."' name='{$field['id']}' id='{$field['id']}' rel='{$field['format']}' value='{$meta}' size='30' />";
     $this->show_field_end( $field, $meta );
   }
-  
+
   /**
    * Show time field.
    *
-   * @param string $field 
-   * @param string $meta 
+   * @param string $field
+   * @param string $meta
    * @since 1.0
-   * @access public 
+   * @access public
    */
   public function show_field_time( $field, $meta ) {
     $this->show_field_begin( $field, $meta );
@@ -929,18 +929,18 @@ class AT_Meta_Box {
       echo "<input type='text'  ".( isset($field['style'])? "style='{$field['style']}' " : '' )." class='at-time".( isset($field['class'])? ' ' . $field['class'] : '' )."' name='{$field['id']}' id='{$field['id']}' data-ampm='{$ampm}' rel='{$field['format']}' value='{$meta}' size='30' />";
     $this->show_field_end( $field, $meta );
   }
-  
+
    /**
    * Show Posts field.
    * used creating a posts/pages/custom types checkboxlist or a select dropdown
-   * @param string $field 
-   * @param string $meta 
+   * @param string $field
+   * @param string $meta
    * @since 1.0
-   * @access public 
+   * @access public
    */
   public function show_field_posts($field, $meta) {
     global $post;
-    
+
     if (!is_array($meta)) $meta = (array) $meta;
     $this->show_field_begin($field, $meta);
     $options = $field['options'];
@@ -961,23 +961,23 @@ class AT_Meta_Box {
       }
       echo "</select>";
     }
-    
+
     $this->show_field_end($field, $meta);
   }
-  
+
   /**
    * Show Taxonomy field.
    * used creating a category/tags/custom taxonomy checkboxlist or a select dropdown
-   * @param string $field 
-   * @param string $meta 
+   * @param string $field
+   * @param string $meta
    * @since 1.0
-   * @access public 
-   * 
+   * @access public
+   *
    * @uses get_terms()
    */
   public function show_field_taxonomy($field, $meta) {
     global $post;
-    
+
     if (!is_array($meta)) $meta = (array) $meta;
     $this->show_field_begin($field, $meta);
     $options = $field['options'];
@@ -1017,20 +1017,20 @@ class AT_Meta_Box {
       }
       echo "</select>";
     }
-    
+
     $this->show_field_end($field, $meta);
   }
 
   /**
    * Show conditinal Checkbox Field.
    *
-   * @param string $field 
-   * @param string $meta 
+   * @param string $field
+   * @param string $meta
    * @since 2.9.9
    * @access public
    */
   public function show_field_cond( $field, $meta ) {
-  
+
     $this->show_field_begin($field, $meta);
     $checked = false;
     if (is_array($meta) && isset($meta['enabled']) && $meta['enabled'] == 'on'){
@@ -1039,7 +1039,7 @@ class AT_Meta_Box {
     echo "<input type='checkbox' class='conditinal_control' name='{$field['id']}[enabled]' id='{$field['id']}'" . checked($checked, true, false) . " />";
     //start showing the fields
     $display = ($checked)? '' :  ' style="display: none;"';
-    
+
     echo '<div class="conditinal_container"'.$display.'><div>';
     foreach ((array)$field['fields'] as $f){
       //reset var $id for cond
@@ -1060,13 +1060,13 @@ class AT_Meta_Box {
     echo '</div></div>';
     $this->show_field_end( $field, $meta );
   }
-  
+
   /**
    * Save Data from Metabox
    *
-   * @param string $post_id 
+   * @param string $post_id
    * @since 1.0
-   * @access public 
+   * @access public
    */
   public function save( $post_id ) {
 
@@ -1105,20 +1105,20 @@ class AT_Meta_Box {
       {
         return $post_id;
       }
-      
+
       foreach ( $this->_fields as $field ) {
-        
+
         $name = $field['id'];
         $type = $field['type'];
         $old = get_post_meta( $post_id, $name, ! $field['multiple'] );
         $new = ( isset( $_POST[$name] ) ) ? $_POST[$name] : ( ( $field['multiple'] ) ? array() : '' );
-              
+
 
         // Validate meta value
         if ( class_exists( 'at_Meta_Box_Validate' ) && method_exists( 'at_Meta_Box_Validate', $field['validate_func'] ) ) {
           $new = call_user_func( array( 'at_Meta_Box_Validate', $field['validate_func'] ), $new );
         }
-        
+
         //skip on Paragraph field
         if ($type != "paragraph"){
 
@@ -1130,25 +1130,25 @@ class AT_Meta_Box {
             $this->save_field( $post_id, $field, $old, $new );
           }
         }
-        
+
       } // End foreach
     }
   }
-  
+
   /**
    * Common function for saving fields.
    *
-   * @param string $post_id 
-   * @param string $field 
-   * @param string $old 
-   * @param string|mixed $new 
+   * @param string $post_id
+   * @param string $field
+   * @param string $old
+   * @param string|mixed $new
    * @since 1.0
    * @access public
    */
   public function save_field( $post_id, $field, $old, $new ) {
     $name = $field['id'];
     delete_post_meta( $post_id, $name );
-    if ( $new === '' || $new === array() ) 
+    if ( $new === '' || $new === array() )
       return;
     if ( $field['multiple'] ) {
       foreach ( $new as $add_new ) {
@@ -1157,15 +1157,15 @@ class AT_Meta_Box {
     } else {
       update_post_meta( $post_id, $name, $new );
     }
-  }  
-  
+  }
+
   /**
    * function for saving image field.
    *
-   * @param string $post_id 
-   * @param string $field 
-   * @param string $old 
-   * @param string|mixed $new 
+   * @param string $post_id
+   * @param string $field
+   * @param string $old
+   * @param string|mixed $new
    * @since 1.7
    * @access public
    */
@@ -1174,35 +1174,35 @@ class AT_Meta_Box {
     delete_post_meta( $post_id, $name );
     if ( $new === '' || $new === array() || $new['id'] == '' || $new['url'] == '')
       return;
-    
+
     update_post_meta( $post_id, $name, $new );
   }
-  
+
   /*
    * Save Wysiwyg Field.
    *
-   * @param string $post_id 
-   * @param string $field 
-   * @param string $old 
-   * @param string $new 
+   * @param string $post_id
+   * @param string $field
+   * @param string $old
+   * @param string $new
    * @since 1.0
-   * @access public 
+   * @access public
    */
   public function save_field_wysiwyg( $post_id, $field, $old, $new ) {
     $id = strtolower( $field['id'] );
     $new = ( isset( $_POST[$id] ) ) ? $_POST[$id] : ( ( $field['multiple'] ) ? array() : '' );
     $this->save_field( $post_id, $field, $old, $new );
   }
-  
+
   /**
    * Save repeater Fields.
    *
-   * @param string $post_id 
-   * @param string $field 
-   * @param string|mixed $old 
-   * @param string|mixed $new 
+   * @param string $post_id
+   * @param string $field
+   * @param string|mixed $old
+   * @param string|mixed $new
    * @since 1.0
-   * @access public 
+   * @access public
    */
   public function save_field_repeater( $post_id, $field, $old, $new ) {
     if (is_array($new) && count($new) > 0){
@@ -1211,7 +1211,7 @@ class AT_Meta_Box {
           $type = $f['type'];
           switch($type) {
             case 'wysiwyg':
-                $n[$f['id']] = wpautop( $n[$f['id']] ); 
+                $n[$f['id']] = wpautop( $n[$f['id']] );
                 break;
               default:
                 break;
@@ -1231,39 +1231,39 @@ class AT_Meta_Box {
       delete_post_meta($post_id,$field['id']);
     }
   }
-  
+
   /**
    * Save File Field.
    *
-   * @param string $post_id 
-   * @param string $field 
-   * @param string $old 
-   * @param string $new 
+   * @param string $post_id
+   * @param string $field
+   * @param string $old
+   * @param string $new
    * @since 1.0
    * @access public
    */
   public function save_field_file( $post_id, $field, $old, $new ) {
-    
+
     $name = $field['id'];
     delete_post_meta( $post_id, $name );
     if ( $new === '' || $new === array() || $new['id'] == '' || $new['url'] == '')
       return;
-    
+
     update_post_meta( $post_id, $name, $new );
   }
-  
+
   /**
    * Save repeater File Field.
-   * @param string $post_id 
-   * @param string $field 
-   * @param string $old 
-   * @param string $new 
+   * @param string $post_id
+   * @param string $field
+   * @param string $old
+   * @param string $new
    * @since 1.0
    * @access public
    * @deprecated 3.0.7
    */
   public function save_field_file_repeater( $post_id, $field, $old, $new ) {}
-  
+
   /**
    * Add missed values for meta box.
    *
@@ -1271,27 +1271,27 @@ class AT_Meta_Box {
    * @access public
    */
   public function add_missed_values() {
-    
+
     // Default values for meta box
     $this->_meta_box = array_merge( array( 'context' => 'normal', 'priority' => 'high', 'pages' => array( 'post' ) ), (array)$this->_meta_box );
 
     // Default values for fields
     foreach ( $this->_fields as &$field ) {
-      
+
       $multiple = in_array( $field['type'], array( 'checkbox_list', 'file', 'image' ) );
       $std = $multiple ? array() : '';
       $format = 'date' == $field['type'] ? 'yy-mm-dd' : ( 'time' == $field['type'] ? 'hh:mm' : '' );
 
       $field = array_merge( array( 'multiple' => $multiple, 'std' => $std, 'desc' => '', 'format' => $format, 'validate_func' => '' ), $field );
-    
+
     } // End foreach
-    
+
   }
 
   /**
    * Check if field with $type exists.
    *
-   * @param string $type 
+   * @param string $type
    * @since 1.0
    * @access public
    */
@@ -1307,7 +1307,7 @@ class AT_Meta_Box {
       $temp[] = $field['type'];
       if ('repeater' == $field['type']  || 'cond' == $field['type']){
         foreach((array)$field["fields"] as $repeater_field) {
-          $temp[] = $repeater_field["type"];  
+          $temp[] = $repeater_field["type"];
         }
       }
     }
@@ -1328,32 +1328,32 @@ class AT_Meta_Box {
     global $pagenow;
     return in_array( $pagenow, array( 'post.php', 'post-new.php' ) );
   }
-  
+
   /**
    * Fixes the odd indexing of multiple file uploads.
    *
-   * Goes from the format: 
+   * Goes from the format:
    * $_FILES['field']['key']['index']
    * to
    * The More standard and appropriate:
    * $_FILES['field']['index']['key']
    *
-   * @param string $files 
+   * @param string $files
    * @since 1.0
    * @access public
    */
   public function fix_file_array( &$files ) {
-    
+
     $output = array();
-    
+
     foreach ( $files as $key => $list ) {
       foreach ( $list as $index => $value ) {
         $output[$index][$key] = $value;
       }
     }
-    
+
     return $output;
-  
+
   }
 
   /**
@@ -1365,17 +1365,17 @@ class AT_Meta_Box {
    * @access public
    */
   public function get_jqueryui_ver() {
-    
+
     global $wp_version;
-    
+
     if ( version_compare( $wp_version, '3.1', '>=') ) {
       return '1.8.10';
     }
-    
+
     return '1.7.3';
-  
+
   }
-  
+
   /**
    *  Add Field to meta box (generic function)
    *  @author Ohad Raz
@@ -1389,7 +1389,7 @@ class AT_Meta_Box {
     $new_field = array_merge($new_field, $args);
     $this->_fields[] = $new_field;
   }
-  
+
   /**
    *  Add Text Field to meta box
    *  @author Ohad Raz
@@ -1402,7 +1402,7 @@ class AT_Meta_Box {
    *    'std' => // default value, string optional
    *    'style' =>   // custom style for field, string optional
    *    'validate_func' => // validate function, string optional
-   *   @param $repeater bool  is this a field inside a repeatr? true|false(default) 
+   *   @param $repeater bool  is this a field inside a repeatr? true|false(default)
    */
   public function addText($id,$args,$repeater=false){
     $new_field = array('type' => 'text','id'=> $id,'std' => '','desc' => '','style' =>'','name' => 'Text Field');
@@ -1413,7 +1413,7 @@ class AT_Meta_Box {
       return $new_field;
     }
   }
-  
+
   /**
    *  Add Number Field to meta box
    *  @author Ohad Raz
@@ -1426,7 +1426,7 @@ class AT_Meta_Box {
    *    'std' => // default value, string optional
    *    'style' =>   // custom style for field, string optional
    *    'validate_func' => // validate function, string optional
-   *   @param $repeater bool  is this a field inside a repeatr? true|false(default) 
+   *   @param $repeater bool  is this a field inside a repeatr? true|false(default)
    */
   public function addNumber($id,$args,$repeater=false){
     $new_field = array('type' => 'number','id'=> $id,'std' => '0','desc' => '','style' =>'','name' => 'Number Field','step' => '1','min' => '0');
@@ -1451,7 +1451,7 @@ class AT_Meta_Box {
    *    'style' =>   // custom style for field, string optional
    *    'syntax' =>   // syntax language to use in editor (php,javascript,css,html)
    *    'validate_func' => // validate function, string optional
-   *   @param $repeater bool  is this a field inside a repeatr? true|false(default) 
+   *   @param $repeater bool  is this a field inside a repeatr? true|false(default)
    */
   public function addCode($id,$args,$repeater=false){
     $new_field = array('type' => 'code','id'=> $id,'std' => '','desc' => '','style' =>'','name' => 'Code Editor Field','syntax' => 'php','theme' => 'defualt');
@@ -1462,7 +1462,7 @@ class AT_Meta_Box {
       return $new_field;
     }
   }
-  
+
   /**
    *  Add Hidden Field to meta box
    *  @author Ohad Raz
@@ -1475,7 +1475,7 @@ class AT_Meta_Box {
    *    'std' => // default value, string optional
    *    'style' =>   // custom style for field, string optional
    *    'validate_func' => // validate function, string optional
-   *   @param $repeater bool  is this a field inside a repeatr? true|false(default) 
+   *   @param $repeater bool  is this a field inside a repeatr? true|false(default)
    */
   public function addHidden($id,$args,$repeater=false){
     $new_field = array('type' => 'hidden','id'=> $id,'std' => '','desc' => '','style' =>'','name' => 'Text Field');
@@ -1486,7 +1486,7 @@ class AT_Meta_Box {
       return $new_field;
     }
   }
-  
+
   /**
    *  Add Paragraph to meta box
    *  @author Ohad Raz
@@ -1494,7 +1494,7 @@ class AT_Meta_Box {
    *  @access public
    *  @param $id string  field id, i.e. the meta key
    *  @param $value  paragraph html
-   *  @param $repeater bool  is this a field inside a repeatr? true|false(default) 
+   *  @param $repeater bool  is this a field inside a repeatr? true|false(default)
    */
   public function addParagraph($id,$args,$repeater=false){
     $new_field = array('type' => 'paragraph','id'=> $id,'value' => '');
@@ -1505,7 +1505,7 @@ class AT_Meta_Box {
       return $new_field;
     }
   }
-    
+
   /**
    *  Add Checkbox Field to meta box
    *  @author Ohad Raz
@@ -1517,7 +1517,7 @@ class AT_Meta_Box {
    *    'desc' => // field description, string optional
    *    'std' => // default value, string optional
    *    'validate_func' => // validate function, string optional
-   *  @param $repeater bool  is this a field inside a repeatr? true|false(default) 
+   *  @param $repeater bool  is this a field inside a repeatr? true|false(default)
    */
   public function addCheckbox($id,$args,$repeater=false){
     $new_field = array('type' => 'checkbox','id'=> $id,'std' => '','desc' => '','style' =>'','name' => 'Checkbox Field');
@@ -1542,8 +1542,8 @@ class AT_Meta_Box {
    *    'std' => // default value, string optional
    *    'validate_func' => // validate function, string optional
    *  @param $repeater bool  is this a field inside a repeatr? true|false(default)
-   *  
-   *   @return : remember to call: $checkbox_list = get_post_meta(get_the_ID(), 'meta_name', false); 
+   *
+   *   @return : remember to call: $checkbox_list = get_post_meta(get_the_ID(), 'meta_name', false);
    *   which means the last param as false to get the values in an array
    */
   public function addCheckboxList($id,$options,$args,$repeater=false){
@@ -1555,7 +1555,7 @@ class AT_Meta_Box {
       return $new_field;
     }
   }
-  
+
   /**
    *  Add Textarea Field to meta box
    *  @author Ohad Raz
@@ -1568,7 +1568,7 @@ class AT_Meta_Box {
    *    'std' => // default value, string optional
    *    'style' =>   // custom style for field, string optional
    *    'validate_func' => // validate function, string optional
-   *  @param $repeater bool  is this a field inside a repeatr? true|false(default) 
+   *  @param $repeater bool  is this a field inside a repeatr? true|false(default)
    */
   public function addTextarea($id,$args,$repeater=false){
     $new_field = array('type' => 'textarea','id'=> $id,'std' => '','desc' => '','style' =>'','name' => 'Textarea Field');
@@ -1579,21 +1579,21 @@ class AT_Meta_Box {
       return $new_field;
     }
   }
-  
+
   /**
    *  Add Select Field to meta box
    *  @author Ohad Raz
    *  @since 1.0
    *  @access public
    *  @param $id string field id, i.e. the meta key
-   *  @param $options (array)  array of key => value pairs for select options  
+   *  @param $options (array)  array of key => value pairs for select options
    *  @param $args mixed|array
    *    'name' => // field name/label string optional
    *    'desc' => // field description, string optional
    *    'std' => // default value, (array) optional
    *    'multiple' => // select multiple values, optional. Default is false.
    *    'validate_func' => // validate function, string optional
-   *  @param $repeater bool  is this a field inside a repeatr? true|false(default) 
+   *  @param $repeater bool  is this a field inside a repeatr? true|false(default)
    */
   public function addSelect($id,$options,$args,$repeater=false){
     $new_field = array('type' => 'select','id'=> $id,'std' => array(),'desc' => '','style' =>'','name' => 'Select Field','multiple' => false,'options' => $options);
@@ -1604,8 +1604,8 @@ class AT_Meta_Box {
       return $new_field;
     }
   }
-  
-  
+
+
   /**
    *  Add Radio Field to meta box
    *  @author Ohad Raz
@@ -1617,7 +1617,7 @@ class AT_Meta_Box {
    *    'name' => // field name/label string optional
    *    'desc' => // field description, string optional
    *    'std' => // default value, string optional
-   *    'validate_func' => // validate function, string optional 
+   *    'validate_func' => // validate function, string optional
    *  @param $repeater bool  is this a field inside a repeatr? true|false(default)
    */
   public function addRadio($id,$options,$args,$repeater=false){
@@ -1642,7 +1642,7 @@ class AT_Meta_Box {
    *    'std' => // default value, string optional
    *    'validate_func' => // validate function, string optional
    *    'format' => // date format, default yy-mm-dd. Optional. Default "'d MM, yy'"  See more formats here: http://goo.gl/Wcwxn
-   *  @param $repeater bool  is this a field inside a repeatr? true|false(default) 
+   *  @param $repeater bool  is this a field inside a repeatr? true|false(default)
    */
   public function addDate($id,$args,$repeater=false){
     $new_field = array('type' => 'date','id'=> $id,'std' => '','desc' => '','format'=>'d MM, yy','name' => 'Date Field');
@@ -1666,7 +1666,7 @@ class AT_Meta_Box {
    *    'std' => // default value, string optional
    *    'validate_func' => // validate function, string optional
    *    'format' => // time format, default hh:mm. Optional. See more formats here: http://goo.gl/83woX
-   *  @param $repeater bool  is this a field inside a repeatr? true|false(default) 
+   *  @param $repeater bool  is this a field inside a repeatr? true|false(default)
    */
   public function addTime($id,$args,$repeater=false){
     $new_field = array('type' => 'time','id'=> $id,'std' => '','desc' => '','format'=>'hh:mm','name' => 'Time Field', 'ampm' => false);
@@ -1677,7 +1677,7 @@ class AT_Meta_Box {
       return $new_field;
     }
   }
-  
+
   /**
    *  Add Color Field to meta box
    *  @author Ohad Raz
@@ -1689,7 +1689,7 @@ class AT_Meta_Box {
    *    'desc' => // field description, string optional
    *    'std' => // default value, string optional
    *    'validate_func' => // validate function, string optional
-   *  @param $repeater bool  is this a field inside a repeatr? true|false(default) 
+   *  @param $repeater bool  is this a field inside a repeatr? true|false(default)
    */
   public function addColor($id,$args,$repeater=false){
     $new_field = array('type' => 'color','id'=> $id,'std' => '','desc' => '','name' => 'ColorPicker Field');
@@ -1700,7 +1700,7 @@ class AT_Meta_Box {
       return $new_field;
     }
   }
-  
+
   /**
    *  Add Image Field to meta box
    *  @author Ohad Raz
@@ -1711,7 +1711,7 @@ class AT_Meta_Box {
    *    'name' => // field name/label string optional
    *    'desc' => // field description, string optional
    *    'validate_func' => // validate function, string optional
-   *  @param $repeater bool  is this a field inside a repeatr? true|false(default) 
+   *  @param $repeater bool  is this a field inside a repeatr? true|false(default)
    */
   public function addImage($id,$args,$repeater=false){
     $new_field = array('type' => 'image','id'=> $id,'desc' => '','name' => 'Image Field','std' => array('id' => '', 'url' => ''),'multiple' => false);
@@ -1722,7 +1722,7 @@ class AT_Meta_Box {
       return $new_field;
     }
   }
-  
+
   /**
    *  Add File Field to meta box
    *  @author Ohad Raz
@@ -1732,7 +1732,7 @@ class AT_Meta_Box {
    *  @param $args mixed|array
    *    'name' => // field name/label string optional
    *    'desc' => // field description, string optional
-   *    'validate_func' => // validate function, string optional 
+   *    'validate_func' => // validate function, string optional
    *  @param $repeater bool  is this a field inside a repeatr? true|false(default)
    */
   public function addFile($id,$args,$repeater=false){
@@ -1756,7 +1756,7 @@ class AT_Meta_Box {
    *    'desc' => // field description, string optional
    *    'std' => // default value, string optional
    *    'style' =>   // custom style for field, string optional Default 'width: 300px; height: 400px'
-   *    'validate_func' => // validate function, string optional 
+   *    'validate_func' => // validate function, string optional
    *  @param $repeater bool  is this a field inside a repeatr? true|false(default)
    */
   public function addWysiwyg($id,$args,$repeater=false){
@@ -1768,7 +1768,7 @@ class AT_Meta_Box {
       return $new_field;
     }
   }
-  
+
   /**
    *  Add Taxonomy Field to meta box
    *  @author Ohad Raz
@@ -1778,12 +1778,12 @@ class AT_Meta_Box {
    *  @param $options mixed|array options of taxonomy field
    *    'taxonomy' =>    // taxonomy name can be category,post_tag or any custom taxonomy default is category
    *    'type' =>  // how to show taxonomy? 'select' (default) or 'checkbox_list'
-   *    'args' =>  // arguments to query taxonomy, see http://goo.gl/uAANN default ('hide_empty' => false)  
+   *    'args' =>  // arguments to query taxonomy, see http://goo.gl/uAANN default ('hide_empty' => false)
    *  @param $args mixed|array
    *    'name' => // field name/label string optional
    *    'desc' => // field description, string optional
    *    'std' => // default value, string optional
-   *    'validate_func' => // validate function, string optional 
+   *    'validate_func' => // validate function, string optional
    *  @param $repeater bool  is this a field inside a repeatr? true|false(default)
    */
   public function addTaxonomy($id,$options,$args,$repeater=false){
@@ -1816,12 +1816,12 @@ class AT_Meta_Box {
    *  @param $options mixed|array options of taxonomy field
    *    'post_type' =>    // post type name, 'post' (default) 'page' or any custom post type
    *    'type' =>  // how to show posts? 'select' (default) or 'checkbox_list'
-   *    'args' =>  // arguments to query posts, see http://goo.gl/is0yK default ('posts_per_page' => -1)  
+   *    'args' =>  // arguments to query posts, see http://goo.gl/is0yK default ('posts_per_page' => -1)
    *  @param $args mixed|array
    *    'name' => // field name/label string optional
    *    'desc' => // field description, string optional
    *    'std' => // default value, string optional
-   *    'validate_func' => // validate function, string optional 
+   *    'validate_func' => // validate function, string optional
    *  @param $repeater bool  is this a field inside a repeatr? true|false(default)
    */
   public function addPosts($id,$options,$args,$repeater=false){
@@ -1839,7 +1839,7 @@ class AT_Meta_Box {
       return $new_field;
     }
   }
-  
+
   /**
    *  Add repeater Field Block to meta box
    *  @author Ohad Raz
@@ -1852,7 +1852,7 @@ class AT_Meta_Box {
    *    'std' => // default value, string optional
    *    'style' =>   // custom style for field, string optional
    *    'validate_func' => // validate function, string optional
-   *    'fields' => //fields to repeater  
+   *    'fields' => //fields to repeater
    */
   public function addRepeaterBlock($id,$args){
     $new_field = array(
@@ -1879,7 +1879,7 @@ class AT_Meta_Box {
    *    'std' => // default value, string optional
    *    'validate_func' => // validate function, string optional
    *    'fields' => list of fields to show conditionally.
-   *  @param $repeater bool  is this a field inside a repeatr? true|false(default) 
+   *  @param $repeater bool  is this a field inside a repeatr? true|false(default)
    */
   public function addCondition($id,$args,$repeater=false){
     $new_field = array(
@@ -1898,8 +1898,8 @@ class AT_Meta_Box {
       return $new_field;
     }
   }
-  
-  
+
+
   /**
    * Finish Declaration of Meta Box
    * @author Ohad Raz
@@ -1909,7 +1909,7 @@ class AT_Meta_Box {
   public function Finish() {
     $this->add_missed_values();
   }
-  
+
   /**
    * Helper function to check for empty arrays
    * @author Ohad Raz
@@ -1920,7 +1920,7 @@ class AT_Meta_Box {
   public function is_array_empty($array){
     if (!is_array($array))
       return true;
-    
+
     foreach ($array as $a){
       if (is_array($a)){
         foreach ($a as $sub_a){
@@ -1936,10 +1936,10 @@ class AT_Meta_Box {
   }
 
   /**
-   * Validate_upload_file_type 
+   * Validate_upload_file_type
    *
    * Checks if the uploaded file is of the expected format
-   * 
+   *
    * @author Ohad Raz <admin@bainternet.info>
    * @since 3.0.7
    * @access public
@@ -1968,7 +1968,7 @@ class AT_Meta_Box {
 
   /**
    * function to sanitize field id
-   * 
+   *
    * @author Ohad Raz <admin@bainternet.info>
    * @since 3.0.7
    * @access public
@@ -1977,7 +1977,7 @@ class AT_Meta_Box {
    */
   public function idfy($str){
     return str_replace(" ", "_", $str);
-    
+
   }
 
   /**
@@ -1995,7 +1995,7 @@ class AT_Meta_Box {
 
 
   /**
-   * load_textdomain 
+   * load_textdomain
    * @author Ohad Raz
    * @since 2.9.4
    * @return void
