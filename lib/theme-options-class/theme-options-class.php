@@ -353,10 +353,10 @@ if ( ! class_exists( 'AT_ThemeSettings') ) :
             }
         }
         public function add_metabox_theme_settings($id,$title,$callback,$context,$priority){
-            if(!$this->settings_box){
-                $this->settings_box = array();
+            if($this->settings_boxes === null){
+                $this->settings_boxes = array();
             }
-            if(!$this->settings_boxes[$id]){
+            if(!isset($this->settings_boxes[$id])){
                 $this->settings_boxes[$id] = array(
                     'id' => $id,
                     'title' => $title,
