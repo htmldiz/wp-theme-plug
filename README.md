@@ -101,6 +101,23 @@ $people = new CPT(array(
 ```
 The Class uses the WordPress defaults where possible.
 
+# WP Custom Post Type Class that hidden for public
+```php
+$people = new CPT(
+array(
+	'post_type_name' => 'person',
+	'singular' => 'Person',
+	'plural' => 'People',
+	'slug' => ''
+),
+array(
+	'publicly_queryable'  => false,
+	'show_in_nav_menus' => false,
+	'exclude_from_search' => true,
+));
+```
+The Class uses the WordPress defaults where possible.
+
 To override the default options simply pass an array of options as the second parameter. Not all options have to be passed just the ones you want to add/override like so:
 
 ```php
